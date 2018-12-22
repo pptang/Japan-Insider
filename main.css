@@ -14,13 +14,20 @@ header > figure > img {
 /* Header */
 /* Top */
 #top {
-  padding-top: 75px;
+  width: 100%;
+  height: 100vh;
+  background-image: url('https://source.unsplash.com/random');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  display: flex;
 }
+
 /* Top */
 
 /* Introduction */
 #introduction {
-  padding-top: 75px;
+
 }
 /* Introduction */
 
@@ -41,6 +48,49 @@ header > figure > img {
   padding-top: 75px;
 }
 /* Team */
+
+/* Reuse css */
+
+/* Section Title */
+.section-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: red;
+}
+
+.section-title:after {
+  content: '';
+  height: 2px;
+  width: 30px;
+  margin-top: 10px;
+  background-color: red;
+
+}
+
+.intro-description {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #eeeeee;
+  color: #333333;
+}
+
+/* aside Title */
+aside {
+  align-self: center;
+  width: 100%;
+  height: 225px;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+}
+
 
 /* Carousel */
 
@@ -127,4 +177,4 @@ li>img {
   width: 100%;
   height: 100%;
 }
-
+/* Carousel */
