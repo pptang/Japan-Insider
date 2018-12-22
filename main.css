@@ -55,6 +55,33 @@ header > figure > img {
   padding-bottom: 50px;
 }
 
+/* Media */
+#media {
+  padding-top: 75px;
+  margin-bottom: 50px;
+}
+.media-container {
+  display: flex;
+  justify-content: center;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 50px;
+  flex-wrap: wrap;
+}
+
+.media-container > figure {
+  width: 18%;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.media-image {
+  width: 100%;
+  height: 50px;
+}
+
 /* Reuse css */
 
 /* Section Title */
