@@ -1,0 +1,130 @@
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  position: fixed;
+  height: 50px;
+  width: 100%;
+}
+
+header > figure > img {
+  width: 180px
+}
+/* Header */
+/* Top */
+#top {
+  padding-top: 75px;
+}
+/* Top */
+
+/* Introduction */
+#introduction {
+  padding-top: 75px;
+}
+/* Introduction */
+
+/* Service */
+#service {
+  padding-top: 75px;
+}
+/* Service */
+
+/* Success case */
+#success-case {
+  padding-top: 75px;
+}
+/* Success case */
+
+/* Team */
+#team {
+  padding-top: 75px;
+}
+/* Team */
+
+/* Carousel */
+
+div.carousel {
+  margin: 60px auto;
+  max-width: 1000px;
+  position: relative;
+}
+
+div.carousel>div.prev,
+div.carousel>div.next {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+div.carousel>div.prev {
+  left: 0;
+}
+
+div.carousel>div.prev>.arrow-left {
+  height: 20px;
+  width: 20px;
+  border-top: 2px solid #fff;
+  border-right: 2px solid #fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-20%, -50%) rotate(225deg);
+  -ms-transform: translate(-20%, -50%) rotate(225deg);
+  -o-transform: translate(-20%, -50%) rotate(225deg);
+  transform: translate(-20%, -50%) rotate(225deg);
+}
+
+div.carousel>div.next {
+  right: 0;
+}
+
+div.carousel>div.next>.arrow-right {
+  height: 20px;
+  width: 20px;
+  border-top: 2px solid #fff;
+  border-right: 2px solid #fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-70%, -50%) rotate(45deg);
+  -ms-transform: translate(-70%, -50%) rotate(45deg);
+  -o-transform: translate(-70%, -50%) rotate(45deg);
+  transform: translate(-70%, -50%) rotate(45deg);
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  height: 500px;
+  max-width: 100%;
+}
+
+li {
+  min-width: 100%;
+  max-width: 1000px;
+  height: 500px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: 0.6s ease-in-out;
+}
+
+li.visible {
+  opacity: 1;
+  transition: 0.6s ease-in-out;
+}
+
+li>img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
