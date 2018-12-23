@@ -19,7 +19,7 @@ nav > a {
   color: #111111;
 }
 nav > a:hover {
-  color: red;
+  color: rgb(212, 0, 0);
 }
 /* Header */
 /* Top */
@@ -117,7 +117,7 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: red;
+  color: rgb(212, 0, 0);
 }
 
 .section-title:after {
@@ -125,7 +125,7 @@ h2 {
   height: 2px;
   width: 30px;
   margin-top: 10px;
-  background-color: red;
+  background-color: rgb(212, 0, 0);
 
 }
 
@@ -139,9 +139,13 @@ h2 {
   padding-top: 75px;
   padding-bottom: 75px;
 }
+/* Emphasis red text */
+em {
+  color: rgb(212, 0, 0);
+}
 /* Big Image */
 .big-image {
-  object-fit: contain;
+  object-fit: cover;
 }
 /* aside Title */
 aside {
@@ -192,7 +196,7 @@ aside {
 }
 .list-item-description {
   font-size: 14px;
-  color: green;
+  color: rgb(150, 121, 38);
   margin-bottom: 20px;
 }
 
