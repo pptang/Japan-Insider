@@ -261,7 +261,6 @@ aside {
 
 div.carousel {
   margin: 60px auto;
-  max-width: 1000px;
   position: relative;
 }
 
@@ -272,7 +271,6 @@ div.carousel>div.next {
   top: 0;
   width: 40px;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
 
@@ -283,8 +281,8 @@ div.carousel>div.prev {
 div.carousel>div.prev>.arrow-left {
   height: 20px;
   width: 20px;
-  border-top: 2px solid #fff;
-  border-right: 2px solid #fff;
+  border-top: 2px solid #aaaaaa;
+  border-right: 2px solid #aaaaaa;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -301,8 +299,8 @@ div.carousel>div.next {
 div.carousel>div.next>.arrow-right {
   height: 20px;
   width: 20px;
-  border-top: 2px solid #fff;
-  border-right: 2px solid #fff;
+  border-top: 2px solid #aaaaaa;
+  border-right: 2px solid #aaaaaa;
   position: absolute;
   top: 50%;
   left: 50%;
