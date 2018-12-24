@@ -1,26 +1,43 @@
-// Carousel
-var prev = document.querySelector('div.prev');
-var next = document.querySelector('div.next');
-var index = 0;
-var lis = document.querySelectorAll('ul.slider li');
-var count = lis.length;
+// Service Carousel
+(function(document) {
+  var prev = document.querySelector('#service div.prev');
+  var next = document.querySelector('#service div.next');
+  var currentIndex = 0;
+  var slideList = document.querySelectorAll('#service ul.slider li');
+  prev.addEventListener('click', onPrevClickHandler(slideList, currentIndex));
 
-prev.addEventListener('click', function() {
-    lis[index].classList.remove('visible');
-    index--;
-    if (index < 0){
-        index = count-1;
+  next.addEventListener('click', onNextClickHandler(slideList, currentIndex));
+})(document);
+(function(document) {
+  var prev = document.querySelector('#success-case div.prev');
+  var next = document.querySelector('#success-case div.next');
+  var currentIndex = 0;
+  var slideList = document.querySelectorAll('#success-case ul.slider li');
+  prev.addEventListener('click', onPrevClickHandler(slideList, currentIndex));
+
+  next.addEventListener('click', onNextClickHandler(slideList, currentIndex));
+})(document);
+
+function onPrevClickHandler(slideList, currentIndex) {
+  return function() {
+    const count = slideList.length;
+    slideList[currentIndex].classList.remove('visible');
+    currentIndex--;
+    if (currentIndex < 0){
+      currentIndex = count - 1;
     }
+    slideList[currentIndex].classList.add('visible');
+  }
+}
 
-    lis[index].classList.add('visible');
-});
-
-next.addEventListener('click', function() {
-    lis[index].classList.remove('visible');
-    index++;
-    if (index > count-1){
-        index = 0;
+function onNextClickHandler(slideList, currentIndex) {
+  return function() {
+    const count = slideList.length;
+    slideList[currentIndex].classList.remove('visible');
+    currentIndex++;
+    if (currentIndex > count - 1){
+    currentIndex = 0;
     }
-
-    lis[index].classList.add('visible');
-});
+    slideList[currentIndex].classList.add('visible');
+  }
+}
