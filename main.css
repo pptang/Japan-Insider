@@ -21,9 +21,6 @@ nav > a {
   text-decoration: none;
   color: #111111;
 }
-nav > a:hover {
-  color: rgb(212, 0, 0);
-}
 
 nav a:hover,
 nav a:focus,
@@ -94,6 +91,54 @@ nav a.selected {
 #japan-insider {
   padding-top: 75px;
   padding-bottom: 50px;
+}
+
+.blog-text-content {
+  padding: 20px 20px 40px 20px;
+  position: relative;
+  height: 150px;
+}
+
+.blog-item-header {
+  display: flex;
+  margin-bottom: 20px;
+  height: 50px;
+}
+
+.blog-item-date p {
+  font-size: 12px;
+  color: rgb(212, 0, 0);
+}
+
+.blog-item-title {
+  display: flex;
+  justify-content: center;
+  border-left: 1px solid #333333;
+  padding-left: 15px;
+  margin-left: 15px;
+  color: rgb(150, 121, 38);
+  font-size: 12px;
+  line-height: 1.1;
+  letter-spacing: 1.2px;
+}
+.blog-item-description {
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 1.3px;
+  color: #333333;
+}
+
+.continue-reading {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  color: #aaaaaa;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.continue-reading:hover {
+  color: rgb(212, 0, 0);
 }
 
 /* Media */
@@ -202,7 +247,9 @@ aside {
   width: 28%;
   margin-left: 20px;
   margin-right: 20px;
+  margin-bottom: 50px;
   border-bottom: 2px solid #333333;
+  background-color: white;
 }
 
 .small-list-item {
@@ -214,14 +261,14 @@ aside {
 .list-item > img {
   width: 100%;
   height: 225px;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
   object-fit: cover;
 }
 
 .list-item-title {
   font-size: 12px;
   color: #333333;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 .list-item-description {
   font-size: 14px;
@@ -291,6 +338,7 @@ aside {
   height: 200px;
   border-radius: 100px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   background-color: white;
@@ -299,6 +347,10 @@ aside {
 .red-background {
   background-color: rgb(212, 0, 0);
   color: white
+}
+.small-font-size {
+  margin-top: 15px;
+  font-size: 16px;
 }
 /* Yellow Border */
 .yellow-border {
@@ -309,6 +361,16 @@ aside {
 .white-background {
   background: white;
 }
+
+/* Red bottom border */
+.red-bottome-border {
+  border-bottom: 2px solid rgb(212, 0, 0);
+}
+/* Box Shadow of List Item*/
+.list-item-shadow {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 /* Carousel */
 
 div.carousel {

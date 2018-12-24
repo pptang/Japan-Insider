@@ -70,14 +70,14 @@
     })
   }
 
-  document.addEventListener('scroll', function() {
-    var $document = document.documentElement
-    var $header = document.querySelector('header')
-    if ($document.scrollTop > 105) {
-      $header.classList.add('white-background')
-    } else {
-      $header.classList.remove('white-background')
-    }
-  })
+  // document.addEventListener('scroll', function() {
+  //   var $document = document.documentElement
+  //   var $header = document.querySelector('header')
+  //   if ($document.scrollTop > 105) {
+  //     $header.classList.add('white-background')
+  //   } else {
+  //     $header.classList.remove('white-background')
+  //   }
+  // })
 })(window, document)
 
