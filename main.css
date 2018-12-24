@@ -1,3 +1,6 @@
+body {
+  font-family: 'Noto Sans', sans-serif;
+}
 /* Header */
 header {
   display: flex;
@@ -19,6 +22,12 @@ nav > a {
   color: #111111;
 }
 nav > a:hover {
+  color: rgb(212, 0, 0);
+}
+
+nav a:hover,
+nav a:focus,
+nav a.selected {
   color: rgb(212, 0, 0);
 }
 /* Header */
@@ -60,7 +69,19 @@ nav > a:hover {
 #success-case {
   padding-top: 75px;
 }
-/* Success case */
+
+.success-title {
+  font-size: 20px;
+  margin-bottom: 50px;
+  color: rgb(150, 121, 38);
+}
+
+.success-number {
+  color: rgb(212, 0, 0);
+  font-size: 64px;
+  font-weight: bold;
+}
+
 
 /* Team */
 #team {
@@ -164,7 +185,8 @@ aside {
 }
 /* List view */
 .list-view-container {
-  width: 84%;
+  width: 70%;
+  height: 100%;
   display: flex;
   justify-content: space-between;
   margin-left: auto;
@@ -181,6 +203,12 @@ aside {
   margin-left: 20px;
   margin-right: 20px;
   border-bottom: 2px solid #333333;
+}
+
+.small-list-item {
+  width: 20%;
+  margin-left: 25px;
+  margin-right: 25px;
 }
 
 .list-item > img {
@@ -202,7 +230,7 @@ aside {
 }
 /* Custom list content */
 .custom-list-item-title {
-  font-size: 14px;
+  font-size: 18px;
   color: rgb(150, 121, 38);
   margin-top: 25px;
   margin-bottom: 10px;
@@ -212,12 +240,16 @@ aside {
   font-size: 12px;
   color: #333333;
   margin-bottom: 25px;
+  letter-spacing: 1.3px;
+  line-height: 1.2;
+  width: 70%;
 }
 .no-bottom-border {
   border-bottom: none;
 }
 .flex-center {
   justify-content: center;
+  align-items: center;
 }
 /* Circle Container */
 .circle-container {
@@ -236,26 +268,46 @@ aside {
 }
 .circle-item-content {
   box-sizing: border-box;
-  width: 21%;
   padding-left: 30px;
   padding-right: 30px;
   margin-bottom: 20px;
 }
 .circle-item-title {
-  font-size: 14px;
+  font-size: 16px;
   color: rgb(150, 121, 38);
   margin-top: 35px;
   margin-bottom: 20px;
 }
 .circle-item-description {
   font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 1.3px;
   color: #333333;
   margin-bottom: 25px;
+}
+/* Red circle container */
+.success-circle-container {
+  width: 200px;
+  height: 200px;
+  border-radius: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  color: rgb(212, 0, 0);
+}
+.red-background {
+  background-color: rgb(212, 0, 0);
+  color: white
 }
 /* Yellow Border */
 .yellow-border {
   border-color: rgb(150, 121, 38);
   border: 1px solid rgb(150, 121, 38);
+}
+/* White Background */
+.white-background {
+  background: white;
 }
 /* Carousel */
 
@@ -275,7 +327,7 @@ div.carousel>div.next {
 }
 
 div.carousel>div.prev {
-  left: 0;
+  left: 25px;
 }
 
 div.carousel>div.prev>.arrow-left {
@@ -293,7 +345,7 @@ div.carousel>div.prev>.arrow-left {
 }
 
 div.carousel>div.next {
-  right: 0;
+  right: 25px;
 }
 
 div.carousel>div.next>.arrow-right {

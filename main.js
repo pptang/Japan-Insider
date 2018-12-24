@@ -51,3 +51,33 @@
   });
 })(document);
 
+// Smooth scroll
+;(function(window, document) {
+  // Add scrolling animation
+  document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault()
+      removeCurrentSelectedClass()
+      this.classList.add('selected')
+    })
+  })
+
+  var scroll = new SmoothScroll('a[href*="#"]', {offset: 150})
+
+  function removeCurrentSelectedClass() {
+    document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+      anchor.classList.remove('selected')
+    })
+  }
+
+  document.addEventListener('scroll', function() {
+    var $document = document.documentElement
+    var $header = document.querySelector('header')
+    if ($document.scrollTop > 105) {
+      $header.classList.add('white-background')
+    } else {
+      $header.classList.remove('white-background')
+    }
+  })
+})(window, document)
+

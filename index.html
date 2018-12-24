@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Page Title</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
   <link rel="stylesheet" type="text/css" media="screen" href="reset.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
 </head>
@@ -14,7 +15,7 @@
       <img class="big-image" src="img/logo.svg" alt="logo">
     </figure>
     <nav>
-      <a href="#top">首頁</a>
+      <a href="#top" class="selected">首頁</a>
       <a href="#service">服務內容</a>
       <a href="#success-case">過去實績</a>
       <a href="#team">團隊成員</a>
@@ -156,9 +157,6 @@
             </article>
           </div>
         </li>
-        <li>
-          <img class="big-image" src="./img/2.jpg" alt="" />
-        </li>
       </ul>
       <div class="next">
         <div class="arrow-right"></div>
@@ -178,13 +176,24 @@
       </div>
       <ul class="slider">
         <li class="visible">
-          <img class="big-image" src="./img/4.jpg" alt="" />
-        </li>
-        <li>
-          <img class="big-image" src="./img/2.jpg" alt="" />
-        </li>
-        <li>
-          <img class="big-image" src="./img/5.jpg" alt="" />
+          <div class="list-view-container flex-center">
+            <article class="list-item no-bottom-border small-list-item">
+              <h2 class="success-title">執行募資案</h2>
+              <p class="success-number success-circle-container">4</p>
+            </article>
+            <article class="list-item no-bottom-border small-list-item">
+              <h2 class="success-title">募資成功率</h2>
+              <p class="success-number success-circle-container">100%</p>
+            </article>
+            <article class="list-item no-bottom-border small-list-item">
+              <h2 class="success-title">募資總金額</h2>
+              <p class="success-number success-circle-container red-background">&#165;28.3</p>
+            </article>
+            <article class="list-item no-bottom-border small-list-item">
+              <h2 class="success-title">執行募資案</h2>
+              <p class="success-number success-circle-container">4</p>
+            </article>
+          </div>
         </li>
       </ul>
       <div class="next">
@@ -345,6 +354,7 @@
     </div>
   </section>
   <footer></footer>
+  <script src="smooth-scroll.polyfills.min.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
