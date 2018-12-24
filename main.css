@@ -28,6 +28,14 @@ nav a.selected {
   color: rgb(212, 0, 0);
 }
 /* Header */
+/* Footer */
+footer {
+  display: flex;
+  justify-content: center;
+  background-color: #333333;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
 /* Top */
 #top {
   width: 100%;
