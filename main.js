@@ -51,6 +51,16 @@
   });
 })(document);
 
+// Toggle Menu
+function toggleMenu() {
+  var navbar = document.getElementById("navbar");
+  if (navbar.className === '') {
+    navbar.className += ' responsive';
+  } else {
+    navbar.className = '';
+  }
+}
+
 // Smooth scroll
 ;(function(window, document) {
   // Add scrolling animation
@@ -58,7 +68,11 @@
     anchor.addEventListener('click', function(e) {
       e.preventDefault()
       removeCurrentSelectedClass()
-      this.classList.add('selected')
+      if (this.id === 'logo-link') {
+        document.getElementById('top-link').classList.add('selected');
+      } else {
+        this.classList.add('selected')
+      }
     })
   })
 

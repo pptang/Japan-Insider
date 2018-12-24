@@ -10,10 +10,10 @@ header {
   z-index: 99;
   height: 75px;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
-header > figure > img {
+header > a > figure > img {
   width: 180px
 }
 nav > a {
@@ -27,6 +27,32 @@ nav a:focus,
 nav a.selected {
   color: rgb(212, 0, 0);
 }
+
+a.hamburger {
+  display: invisible;
+}
+
+@media screen and (max-width: 600px) {
+  nav a {
+    display: none;
+  }
+  a.hamburger {
+    display: block;
+  }
+  nav.responsive {
+    width: 100%;
+    position: absolute;
+    top: 75px;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+  }
+  nav.responsive a {
+    display: block;
+    margin-left: 10px;
+    margin-bottom: 15px;
+  }
+}
+
 /* Header */
 /* Footer */
 footer {
