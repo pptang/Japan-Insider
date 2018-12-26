@@ -61,6 +61,19 @@ function toggleMenu() {
   }
 }
 
+// Top page carousel
+;(function(window, document) {
+  var topSection = document.getElementById('top');
+  var i = 1;
+  setInterval(function() {
+    if (i > 3) {
+      i = 1;
+    }
+    topSection.style.backgroundImage = `url('./img/top-${i}.jpg')`;
+    i++;
+  }, 3000);
+})(window, document);
+
 // Smooth scroll
 ;(function(window, document) {
   // Add scrolling animation

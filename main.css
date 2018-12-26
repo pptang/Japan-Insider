@@ -66,12 +66,13 @@ footer {
 #top {
   width: 100%;
   height: 100vh;
-  background-image: url('./img/top.jpg');
+  background-image: url('./img/top-1.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   display: flex;
   position: relative;
+  transition: 1s ease-in-out;
 }
 
 #top:before {
@@ -158,6 +159,26 @@ footer {
 
 
 /* Team */
+#team-introduction {
+  width: 100%;
+  height: 500px;
+  background-image: url('./img/team-background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+#team-introduction:before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.7);
+  width: 100%;
+  height: 100%;
+}
 #team {
   padding-top: 75px;
   padding-bottom: 50px;
@@ -218,7 +239,29 @@ footer {
   color: rgb(212, 0, 0);
 }
 
+
+
 /* Media */
+#market-development-description {
+  width: 100%;
+  height: 500px;
+  background-image: url('./img/market-development.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+#market-development-description:before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.7);
+  width: 100%;
+  height: 100%;
+}
 #media {
   padding-top: 75px;
   margin-bottom: 50px;
@@ -284,6 +327,8 @@ h2 {
   background-color: #eeeeee;
   color: #333333;
   padding: 75px 20px;
+  position: relative;
+  z-index: 2;
 }
 /* Emphasis red text */
 em {
@@ -310,7 +355,7 @@ aside {
 }
 /* List view */
 .list-view-container {
-  width: 70%;
+  width: 84 %;
   height: 100%;
   display: flex;
   justify-content: space-between;
@@ -456,7 +501,16 @@ aside {
 .list-item-shadow {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
+/* Floating title */
+.float-title {
+  margin: auto;
+  z-index: 10;
+  color: #333333;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 /* Carousel */
 div.carousel {
   margin: 60px auto;
