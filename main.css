@@ -247,6 +247,11 @@ footer {
 
 /* Reuse css */
 
+/* Hide element */
+.invisible {
+  display: none;
+}
+
 /* H2 */
 h2 {
   padding: 10px;
@@ -278,8 +283,7 @@ h2 {
   align-items: center;
   background-color: #eeeeee;
   color: #333333;
-  padding-top: 75px;
-  padding-bottom: 75px;
+  padding: 75px 20px;
 }
 /* Emphasis red text */
 em {
@@ -454,7 +458,6 @@ aside {
 }
 
 /* Carousel */
-
 div.carousel {
   margin: 60px auto;
   position: relative;
@@ -517,7 +520,7 @@ ul {
 
 li {
   min-width: 100%;
-  max-width: 1000px;
+  /* max-width: 1000px; */
   height: 500px;
   position: absolute;
   top: 0;
@@ -537,3 +540,26 @@ li>img {
   height: 100%;
 }
 /* Carousel */
+
+/* Mobile List View */
+.mobile-list-container {
+  display: none;
+}
+@media screen and (max-width: 1100px) {
+  div.carousel {
+    display: none;
+  }
+  .mobile-list-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-top: 15px;
+  }
+  .mobile-list-container .list-item {
+    flex-shrink: 0;
+    width: 60%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding-top: 10px;
+  }
+
+}
