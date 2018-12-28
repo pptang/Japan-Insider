@@ -431,6 +431,7 @@ aside {
   margin-bottom: 50px;
   border-bottom: 2px solid #333333;
   background-color: white;
+  position: relative;
 }
 
 .small-list-item {
@@ -458,9 +459,36 @@ aside {
   margin-bottom: 20px;
 }
 .list-item-description {
-  font-size: 1.4rem;
+  font-size: 1.8rem;
   color: rgb(150, 121, 38);
   margin-bottom: 20px;
+  position: relative;
+}
+.big-arrow {
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  border-top: 2px solid rgb(150, 121, 38);
+  border-right: 2px solid rgb(150, 121, 38);
+  -webkit-transform: translate(-70%, -50%) rotate(45deg);
+  -ms-transform: translate(-70%, -50%) rotate(45deg);
+  -o-transform: translate(-70%, -50%) rotate(45deg);
+  transform: translate(-70%, -50%) rotate(45deg);
+  position: absolute;
+  top: 50%;
+  right: -30px;
+  cursor: pointer;
+}
+.self-introduction {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 5;
+  background-color: rgb(150, 121, 38, 0.3);
+  padding: 30px;
+  font-size: 1.6rem;
+  color: white;
+  box-sizing: border-box;
 }
 /* Custom list content */
 .custom-list-item-title {
