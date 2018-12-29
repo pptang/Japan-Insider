@@ -128,7 +128,7 @@ function toggleMenu() {
 
 // Team member introduction animation
 ;(function() {
-  document.querySelectorAll('#team .list-view-container .list-item').forEach(function(listItem) {
+  document.querySelectorAll('#team .three-grid-view-container .three-grid-item').forEach(function(listItem) {
     listItem.addEventListener('click', function(e) {
       e.preventDefault()
       removeCurrentSelectedClass();
@@ -142,7 +142,7 @@ function toggleMenu() {
     removeCurrentSelectedClass();
   });
   function removeCurrentSelectedClass() {
-    document.querySelectorAll('#team .list-view-container .list-item').forEach(function(anchor) {
+    document.querySelectorAll('#team .three-grid-view-container .three-grid-item').forEach(function(anchor) {
       anchor.classList.remove('selected')
     });
   }

@@ -149,12 +149,12 @@ footer {
 
 /* Service */
 #service {
-  padding-top: 75px;
+  padding-top: 30px;
 }
 
 /* Success case */
 #success-case {
-  padding-top: 75px;
+  padding-top: 30px;
 }
 
 .success-title {
@@ -168,7 +168,10 @@ footer {
   font-size: 6.4rem;
   font-weight: bold;
 }
-
+.fund-raise-image {
+  object-fit: cover;
+  width: 100%;
+}
 .fund-raise-content {
   padding: 10px;
 }
@@ -216,10 +219,10 @@ footer {
 /* Team */
 #team-introduction {
   width: 100%;
-  height: 500px;
+  height: 912px;
   background-image: url('./img/team-background.jpg');
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain;
   background-position: center;
   position: relative;
   display: flex;
@@ -230,7 +233,7 @@ footer {
   content: '';
   position: absolute;
   z-index: 1;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.66);
   width: 100%;
   height: 100%;
 }
@@ -246,10 +249,14 @@ footer {
   padding-bottom: 50px;
 }
 
+#japan-insider .big-image {
+  height: 200px;
+}
+
 .blog-text-content {
   padding: 20px 20px 40px 20px;
   position: relative;
-  height: 150px;
+  height: 180px;
 }
 
 .blog-item-header {
@@ -318,7 +325,7 @@ footer {
   height: 100%;
 }
 #media {
-  padding-top: 75px;
+  padding-top: 30px;
   margin-bottom: 50px;
 }
 .media-container {
@@ -335,11 +342,11 @@ footer {
   width: 18%;
   margin-left: 10px;
   margin-right: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .media-image {
-  width: 100%;
+  width: 70%;
   height: 50px;
 }
 
@@ -358,6 +365,30 @@ h2 {
   letter-spacing: 3px;
 }
 
+h3 {
+  font-size: 3rem;
+}
+
+@media screen and (max-width: 900px) {
+  h2 {
+    padding: 10px;
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  h2 {
+    padding: 5px;
+    font-size: 1.7rem;
+    letter-spacing: 2px;
+  }
+  .media-image {
+    width: 100%;
+    height: 100px;
+  }
+}
+
 /* Section Title */
 .section-title {
   display: flex;
@@ -370,7 +401,7 @@ h2 {
   content: '';
   height: 2px;
   width: 30px;
-  margin-top: 10px;
+  margin-top: 20px;
   background-color: rgb(212, 0, 0);
 }
 
@@ -385,6 +416,10 @@ h2 {
   position: relative;
   z-index: 2;
 }
+/* border bottom black */
+.black-border-bottom {
+  border-bottom: 2px solid #333333;
+}
 /* Emphasis red text */
 em {
   color: rgb(212, 0, 0);
@@ -392,6 +427,7 @@ em {
 /* Big Image */
 .big-image {
   object-fit: cover;
+  width: 100%;
 }
 /* aside Title */
 aside {
@@ -408,16 +444,87 @@ aside {
   align-items: center;
   font-size: 1.8rem;
 }
+/* Grid view */
+.three-grid-view-container {
+  display: grid;
+  justify-items: center;
+  grid-template-columns: auto auto auto;
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 30px;
+}
+
+.three-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 250px;
+  position: relative;
+  background-color: white;
+}
+
+#team .three-grid-item {
+  margin-bottom: 50px;
+}
+
+#team .three-grid-item img {
+  width: 100%;
+  height: 225px;
+  margin-bottom: 10px;
+  object-fit: cover;
+}
+
+.three-grid-item.selected .self-introduction {
+  opacity: 1;
+  transition: all 0.3s ease-in-out;
+}
+.self-introduction {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 5;
+  background-color: rgb(150, 121, 38, 0.6);
+  padding: 30px;
+  font-size: 1.6rem;
+  color: white;
+  letter-spacing: 1.2px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.four-grid-view-container {
+  display: grid;
+  justify-items: center;
+  grid-template-columns: auto auto auto auto;
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 30px;
+}
+
+.four-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* List view */
 .list-view-container {
   width: 70%;
   height: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   margin-left: auto;
   margin-right: auto;
   padding-top: 30px;
   flex-wrap: wrap;
+}
+
+.list-view-container:after {
+  content: '';
+  flex: auto;
 }
 
 .list-item {
@@ -425,6 +532,7 @@ aside {
   flex-direction: column;
   align-items: center;
   width: 28%;
+  max-width: 208px;
   margin-left: 20px;
   margin-right: 20px;
   margin-bottom: 50px;
@@ -478,24 +586,7 @@ aside {
   right: -30px;
   cursor: pointer;
 }
-.list-item.selected .self-introduction {
-  opacity: 1;
-  transition: all 0.3s ease-in-out;
-}
-.self-introduction {
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  z-index: 5;
-  background-color: rgb(150, 121, 38, 0.6);
-  padding: 30px;
-  font-size: 1.6rem;
-  color: white;
-  letter-spacing: 1.2px;
-  line-height: 1.5;
-  box-sizing: border-box;
-}
+
 /* Custom list content */
 .custom-list-item-title {
   font-size: 1.8rem;
@@ -589,7 +680,7 @@ aside {
 }
 /* Box Shadow of List Item*/
 .list-item-shadow {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 /* Floating title */
 .float-title {
@@ -601,9 +692,17 @@ aside {
   flex-direction: column;
   align-items: center;
 }
+.float-title h2 {
+  line-height: 1.7;
+}
+/* Promoting title */
+.promoting-title {
+  line-height: 1.7;
+  margin-top: 50px;
+}
 /* Carousel */
 div.carousel {
-  margin: 60px auto;
+  margin: 30px auto;
   position: relative;
 }
 
@@ -689,7 +788,20 @@ li>img {
 .mobile-list-container {
   display: none;
 }
+
 @media screen and (max-width: 1100px) {
+  #team .three-grid-view-container {
+    display: none;
+  }
+  #japan-insider .three-grid-view-container {
+    display: none;
+  }
+  #japan-insider .mobile-list-container .big-image {
+    height: 100px;
+  }
+  .blog-text-content {
+    height: 220px;
+  }
   div.carousel {
     display: none;
   }
@@ -697,12 +809,13 @@ li>img {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    padding-top: 15px;
+    padding: 15px;
+    margin-right: 15px;
   }
   .mobile-list-container .list-item {
     flex-shrink: 0;
     width: 60%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     padding-top: 10px;
   }
 
