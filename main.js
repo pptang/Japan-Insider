@@ -24,6 +24,7 @@
     slideList[currentIndex].classList.add('visible');
   });
 })(document);
+
 // Success case carousel
 (function(document) {
   var prev = document.querySelector('#success-case div.prev');
@@ -124,4 +125,26 @@ function toggleMenu() {
   //   }
   // })
 })(window, document)
+
+// Team member introduction animation
+;(function() {
+  document.querySelectorAll('#team .list-view-container .list-item').forEach(function(listItem) {
+    listItem.addEventListener('click', function(e) {
+      e.preventDefault()
+      removeCurrentSelectedClass();
+      this.classList.add('selected');
+    })
+  });
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('self-introduction')) {
+      return;
+    }
+    removeCurrentSelectedClass();
+  });
+  function removeCurrentSelectedClass() {
+    document.querySelectorAll('#team .list-view-container .list-item').forEach(function(anchor) {
+      anchor.classList.remove('selected')
+    });
+  }
+})(window, document);
 
