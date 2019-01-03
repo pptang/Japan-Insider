@@ -197,12 +197,12 @@ footer {
 
 /* Service */
 #service {
-  padding-top: 30px;
+  padding-top: 75px;
 }
 
 /* Success case */
 #success-case {
-  padding-top: 30px;
+  padding-top: 75px;
 }
 
 .mobile-flex-container {
@@ -746,8 +746,8 @@ aside {
 }
 .big-arrow {
   display: inline-block;
-  height: 16px;
-  width: 16px;
+  height: 8px;
+  width: 8px;
   border-top: 2px solid rgb(150, 121, 38);
   border-right: 2px solid rgb(150, 121, 38);
   -webkit-transform: translate(-70%, -50%) rotate(45deg);
@@ -757,13 +757,6 @@ aside {
   top: 50%;
   right: -30px;
   cursor: pointer;
-}
-
-@media screen and (max-width: 600px) {
-  .big-arrow {
-    height: 8px;
-    width: 8px;
-  }
 }
 /* Custom list content */
 .custom-list-item-title {
