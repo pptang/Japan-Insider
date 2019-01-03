@@ -67,10 +67,10 @@ function toggleMenu() {
   var topSection = document.getElementById('top');
   var i = 1;
   document.querySelectorAll('.dot').forEach(function(dot, index) {
+    index += 1;
     dot.addEventListener('click', function() {
       removeCurrentSelectedClass();
       this.classList.add('selected');
-      index += 1;
       topSection.style.backgroundImage = `url('./img/top-${index}.jpg')`;
       i = index;
     });
