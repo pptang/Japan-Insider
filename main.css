@@ -198,6 +198,7 @@ footer {
 /* Service */
 #service {
   padding-top: 75px;
+  padding-bottom: 75px;
 }
 
 /* Success case */
@@ -456,7 +457,7 @@ footer {
 }
 
 .media-image {
-  width: 70%;
+  width: 100%;
   height: 50px;
 }
 
@@ -592,6 +593,11 @@ aside {
   margin-left: auto;
   margin-right: auto;
   padding-top: 65px;
+  grid-gap: 20px;
+}
+
+#service .three-grid-view-container {
+  padding-top: 0;
 }
 
 .three-grid-item {
@@ -654,6 +660,10 @@ aside {
   margin-left: auto;
   margin-right: auto;
   padding-top: 65px;
+}
+
+#service .four-grid-view-container {
+  padding-top: 0;
 }
 
 .four-grid-item {
