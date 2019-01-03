@@ -91,7 +91,16 @@ a.hamburger {
   position: fixed;
   right: 50px;
   bottom: 50px;
-  z-index: 10;
+  z-index: 20;
+}
+
+@media screen and (max-width: 600px) {
+  .mailBtn {
+    width: 50px;
+    height: 50px;
+    right: 20px;
+    bottom: 20px;
+  }
 }
 
 .mailBtn > a {
@@ -195,6 +204,19 @@ footer {
   padding-top: 30px;
 }
 
+.mobile-flex-container {
+  display: none;
+}
+
+@media screen and (max-width: 600px) {
+  .mobile-flex-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 65px;
+  }
+}
+
 .success-title {
   font-size: 2rem;
   margin-bottom: 50px;
@@ -268,7 +290,7 @@ footer {
   height: 912px;
   background-image: url('./img/team-background.jpg');
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: cover;
   background-position: center;
   position: relative;
   display: -webkit-box;
@@ -292,6 +314,12 @@ footer {
   padding-top: 75px;
   padding-bottom: 50px;
   background-color: rgb(242, 242, 242);
+}
+
+@media screen and (max-width: 600px) {
+  #team-introduction {
+    height: 300px;
+  }
 }
 
 /* Japan Insider */
@@ -386,6 +414,13 @@ footer {
   width: 100%;
   height: 100%;
 }
+
+@media screen and (max-width: 600px) {
+  #market-development-description {
+    height: 500px;
+  }
+}
+
 #media {
   padding-top: 30px;
   margin-bottom: 50px;
@@ -452,7 +487,7 @@ h3 {
   }
   .media-image {
     width: 100%;
-    height: 100px;
+    height: 40px;
   }
 }
 
@@ -716,6 +751,12 @@ aside {
   cursor: pointer;
 }
 
+@media screen and (max-width: 600px) {
+  .big-arrow {
+    height: 8px;
+    width: 8px;
+  }
+}
 /* Custom list content */
 .custom-list-item-title {
   font-size: 2rem;
@@ -731,6 +772,11 @@ aside {
   letter-spacing: 1.3px;
   line-height: 1.2;
   width: 70%;
+}
+
+.align-left {
+  align-self: start;
+  margin-left: 20px;
 }
 .no-bottom-border {
   border-bottom: none;
@@ -970,7 +1016,7 @@ li>img {
     -ms-flex-wrap: nowrap;
         flex-wrap: nowrap;
     overflow-x: auto;
-    padding: 15px;
+    padding: 65px 15px 15px 15px;
     margin-right: 15px;
   }
   .mobile-list-container .list-item {
