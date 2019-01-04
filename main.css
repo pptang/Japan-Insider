@@ -237,6 +237,10 @@ footer {
   font-size: 6.4rem;
   font-weight: bold;
 }
+.fund-raise-link {
+  text-decoration: none;
+  cursor: pointer;
+}
 .fund-raise-image {
   -o-object-fit: cover;
      object-fit: cover;
@@ -262,7 +266,7 @@ footer {
 }
 .fund-raise-title:after {
   content: '';
-  height: 2px;
+  height: 1px;
   width: 30px;
   margin-top: 10px;
   background-color: rgb(150, 121, 38);
@@ -355,7 +359,11 @@ footer {
   margin-bottom: 20px;
   height: 50px;
 }
-
+.blog-item-date {
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+}
 .blog-item-date p {
   font-size: 1.2rem;
   color: rgb(212, 0, 0);
@@ -368,6 +376,9 @@ footer {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
   border-left: 1px solid #333333;
   padding-left: 15px;
   margin-left: 15px;
@@ -917,6 +928,29 @@ aside {
   margin-top: 50px;
   width: 80%;
 }
+
+#amazon-link {
+  width: 180px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: rgb(212, 0, 0);
+  font-size: 1.2rem;
+  padding: 1rem;
+  text-decoration: none;
+  color: white;
+  margin-left: 20px;
+  letter-spacing: 1.1px;
+}
+
+@media screen and (max-width: 600px) {
+  #amazon-link {
+    font-size: 0.6rem;
+    width: 90px;
+    height: 20px;
+    padding: 0.8rem;
+  }
+}
+
 /* Carousel */
 div.carousel {
   margin: 60px auto;
@@ -987,6 +1021,7 @@ li {
   -webkit-transition: 0.6s ease-in-out;
   -o-transition: 0.6s ease-in-out;
   transition: 0.6s ease-in-out;
+  pointer-events: none;
 }
 
 li.visible {
@@ -994,6 +1029,7 @@ li.visible {
   -webkit-transition: 0.6s ease-in-out;
   -o-transition: 0.6s ease-in-out;
   transition: 0.6s ease-in-out;
+  pointer-events: auto;
 }
 
 li>img {

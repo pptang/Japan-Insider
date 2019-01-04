@@ -50,6 +50,13 @@
     }
     slideList[currentIndex].classList.add('visible');
   });
+
+  document.querySelectorAll('.fund-raise-link').forEach(function(linkItem) {
+    linkItem.addEventListener('click', function(e) {
+      e.preventDefault()
+      window.open(this.dataset.url, '_blank');
+    });
+  });
 })(document);
 
 // Toggle Menu
