@@ -1,4 +1,4 @@
-// Service Carousel
+// Service Carousel test 
 (function(document) {
   var prev = document.querySelector('#service div.prev');
   var next = document.querySelector('#service div.next');
