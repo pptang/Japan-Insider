@@ -1,4 +1,4 @@
-module Main exposing (main, view)
+module Navbar exposing (view)
 
 import Browser
 import Html exposing (Html, a, nav, text)
@@ -19,11 +19,3 @@ view =
         , a [ href "#japan-insider" ] [ text "日本內幕" ]
         , a [ href "https://japaninsider.typeform.com/to/S7rcLo" ] [ text "聯絡我們" ]
         ]
-
-
-
--- MAIN
-
-
-main =
-    view
