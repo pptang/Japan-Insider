@@ -4485,16 +4485,15 @@ function _Browser_load(url)
 		}
 	}));
 }
+var author$project$Main$GotMediaList = function (a) {
+	return {$: 'GotMediaList', a: a};
+};
 var author$project$Main$GotServiceContentList = function (a) {
 	return {$: 'GotServiceContentList', a: a};
 };
 var author$project$Main$GotServiceDetailList = function (a) {
 	return {$: 'GotServiceDetailList', a: a};
 };
-var author$project$Main$ServiceContent = F4(
-	function (imgSrc, imgAlt, title, description) {
-		return {description: description, imgAlt: imgAlt, imgSrc: imgSrc, title: title};
-	});
 var elm$core$Array$branchFactor = 32;
 var elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
@@ -4971,8 +4970,17 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 		}
 	});
 var elm$json$Json$Decode$field = _Json_decodeField;
-var elm$json$Json$Decode$map4 = _Json_map4;
+var elm$json$Json$Decode$list = _Json_decodeList;
 var elm$json$Json$Decode$string = _Json_decodeString;
+var author$project$Main$decodeMediaList = A2(
+	elm$json$Json$Decode$field,
+	'data',
+	elm$json$Json$Decode$list(elm$json$Json$Decode$string));
+var author$project$Main$ServiceContent = F4(
+	function (imgSrc, imgAlt, title, description) {
+		return {description: description, imgAlt: imgAlt, imgSrc: imgSrc, title: title};
+	});
+var elm$json$Json$Decode$map4 = _Json_map4;
 var author$project$Main$serviceContentDecoder = A5(
 	elm$json$Json$Decode$map4,
 	author$project$Main$ServiceContent,
@@ -4980,7 +4988,6 @@ var author$project$Main$serviceContentDecoder = A5(
 	A2(elm$json$Json$Decode$field, 'imgAlt', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'title', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'description', elm$json$Json$Decode$string));
-var elm$json$Json$Decode$list = _Json_decodeList;
 var author$project$Main$decodeServiceContentList = A2(
 	elm$json$Json$Decode$field,
 	'data',
@@ -5883,7 +5890,7 @@ var elm$http$Http$get = function (r) {
 };
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
-		{navBarClassNames: _List_Nil, serviceContentList: _List_Nil, serviceDetailList: _List_Nil, serviceIndex: 0, successCaseIndex: 0},
+		{mediaList: _List_Nil, navBarClassNames: _List_Nil, serviceContentList: _List_Nil, serviceDetailList: _List_Nil, serviceIndex: 0, successCaseIndex: 0},
 		elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
@@ -5896,6 +5903,11 @@ var author$project$Main$init = function (_n0) {
 					{
 						expect: A2(elm$http$Http$expectJson, author$project$Main$GotServiceDetailList, author$project$Main$decodeServiceDetailList),
 						url: 'service_detail.json'
+					}),
+					elm$http$Http$get(
+					{
+						expect: A2(elm$http$Http$expectJson, author$project$Main$GotMediaList, author$project$Main$decodeMediaList),
+						url: 'media.json'
 					})
 				])));
 };
@@ -5959,7 +5971,7 @@ var author$project$Main$update = F2(
 				} else {
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 				}
-			default:
+			case 'Carousel':
 				var useCase = msg.a;
 				var behaviour = msg.b;
 				if (useCase.$ === 'Service') {
@@ -5999,9 +6011,20 @@ var author$project$Main$update = F2(
 							elm$core$Platform$Cmd$none);
 					}
 				}
+			default:
+				var result = msg.a;
+				if (result.$ === 'Ok') {
+					var mediaList = result.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{mediaList: mediaList}),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
 		}
 	});
-var author$project$Main$TOGGLE = {$: 'TOGGLE'};
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$succeed = _Json_succeed;
 var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
@@ -6016,13 +6039,9 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
-var elm$html$Html$a = _VirtualDom_node('a');
 var elm$html$Html$figure = _VirtualDom_node('figure');
-var elm$html$Html$header = _VirtualDom_node('header');
+var elm$html$Html$footer = _VirtualDom_node('footer');
 var elm$html$Html$img = _VirtualDom_node('img');
-var elm$html$Html$nav = _VirtualDom_node('nav');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var elm$json$Json$Encode$string = _Json_wrap;
 var elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -6033,6 +6052,39 @@ var elm$html$Html$Attributes$stringProperty = F2(
 	});
 var elm$html$Html$Attributes$alt = elm$html$Html$Attributes$stringProperty('alt');
 var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var author$project$Main$viewFooter = A2(
+	elm$html$Html$footer,
+	_List_Nil,
+	_List_fromArray(
+		[
+			A2(
+			elm$html$Html$figure,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$img,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('media-image'),
+							elm$html$Html$Attributes$src('img/logo.svg'),
+							elm$html$Html$Attributes$alt('logo')
+						]),
+					_List_Nil)
+				]))
+		]));
+var author$project$Main$TOGGLE = {$: 'TOGGLE'};
+var elm$html$Html$a = _VirtualDom_node('a');
+var elm$html$Html$header = _VirtualDom_node('header');
+var elm$html$Html$nav = _VirtualDom_node('nav');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var elm$html$Html$Attributes$height = function (n) {
 	return A2(
 		_VirtualDom_attribute,
@@ -6046,12 +6098,6 @@ var elm$html$Html$Attributes$href = function (url) {
 		_VirtualDom_noJavaScriptUri(url));
 };
 var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
-var elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
 var elm$html$Html$Attributes$width = function (n) {
 	return A2(
 		_VirtualDom_attribute,
@@ -6275,6 +6321,173 @@ var author$project$Main$viewSectionIntroduction = A2(
 					elm$html$Html$text('服務')
 				]))
 		]));
+var elm$html$Html$h3 = _VirtualDom_node('h3');
+var elm$html$Html$Attributes$target = elm$html$Html$Attributes$stringProperty('target');
+var author$project$Main$viewSectionMarketDev = A2(
+	elm$html$Html$section,
+	_List_fromArray(
+		[
+			elm$html$Html$Attributes$id('market-development-description')
+		]),
+	_List_fromArray(
+		[
+			A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('float-title')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$h3,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('section-title')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('後續市場開發')
+						])),
+					A2(
+					elm$html$Html$h2,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('promoting-title')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('JAPAN INSIDER 除了協助團隊規劃群眾募資外, 並協助團隊後續的市場開發。已經成功協助團隊以各種方式開拓日本市場, 包括與'),
+							A2(
+							elm$html$Html$em,
+							_List_Nil,
+							_List_fromArray(
+								[
+									elm$html$Html$text('當地知名品牌談定合作, 導入當地通路商、進入日本電商平台販賣')
+								])),
+							elm$html$Html$text('等。'),
+							A2(
+							elm$html$Html$a,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$id('amazon-link'),
+									elm$html$Html$Attributes$href('https://japaninsider.typeform.com/to/PXWmex'),
+									elm$html$Html$Attributes$target('_blank')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('日本電商代營運')
+								]))
+						]))
+				]))
+		]));
+var author$project$Main$assetPath = 'img/';
+var elm$core$String$append = _String_append;
+var author$project$Main$viewMedia = function (imgName) {
+	var imgSrc = A2(elm$core$String$append, author$project$Main$assetPath, imgName);
+	var imgAlt = imgName;
+	return A2(
+		elm$html$Html$figure,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$img,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('media-image'),
+						elm$html$Html$Attributes$src(imgSrc),
+						elm$html$Html$Attributes$alt(imgAlt)
+					]),
+				_List_Nil)
+			]));
+};
+var elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
+var author$project$Main$viewSectionMedia = function (_n0) {
+	var mediaList = _n0.mediaList;
+	return A2(
+		elm$html$Html$section,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$id('media')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$h3,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('section-title')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('媒體報導')
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('media-container')
+					]),
+				A2(elm$core$List$map, author$project$Main$viewMedia, mediaList))
+			]));
+};
+var author$project$Main$viewSectionPromotion = A2(
+	elm$html$Html$section,
+	_List_fromArray(
+		[
+			elm$html$Html$Attributes$id('promotion'),
+			elm$html$Html$Attributes$class('intro-description')
+		]),
+	_List_fromArray(
+		[
+			A2(
+			elm$html$Html$h2,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('text')
+				]),
+			_List_fromArray(
+				[
+					elm$html$Html$text('JAPAN INSIDER')
+				])),
+			A2(
+			elm$html$Html$h2,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('text')
+				]),
+			_List_fromArray(
+				[
+					elm$html$Html$text('協助團隊成功募資的金額')
+				])),
+			A2(
+			elm$html$Html$h2,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$em,
+					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$text('超過 4000萬日幣')
+						]))
+				]))
+		]));
 var author$project$Main$Carousel = F2(
 	function (a, b) {
 		return {$: 'Carousel', a: a, b: b};
@@ -6283,8 +6496,65 @@ var author$project$Main$Next = {$: 'Next'};
 var author$project$Main$Prev = {$: 'Prev'};
 var author$project$Main$Service = {$: 'Service'};
 var elm$html$Html$article = _VirtualDom_node('article');
-var elm$html$Html$h3 = _VirtualDom_node('h3');
 var elm$html$Html$p = _VirtualDom_node('p');
+var author$project$Main$viewMobileServiceContent = function (_n0) {
+	var imgSrc = _n0.imgSrc;
+	var imgAlt = _n0.imgAlt;
+	var title = _n0.title;
+	var description = _n0.description;
+	return A2(
+		elm$html$Html$article,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('list-item no-bottom-border')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('circle-container')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$figure,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$img,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$src(imgSrc),
+										elm$html$Html$Attributes$alt(imgAlt)
+									]),
+								_List_Nil)
+							]))
+					])),
+				A2(
+				elm$html$Html$h3,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('custom-list-item-title')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(title)
+					])),
+				A2(
+				elm$html$Html$p,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('custom-list-item-description')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(description)
+					]))
+			]));
+};
 var author$project$Main$viewServiceContent = function (_n0) {
 	var imgSrc = _n0.imgSrc;
 	var imgAlt = _n0.imgAlt;
@@ -6376,20 +6646,6 @@ var author$project$Main$viewServiceDetail = function (_n0) {
 					]))
 			]));
 };
-var elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
 var elm$html$Html$li = _VirtualDom_node('li');
 var elm$html$Html$ul = _VirtualDom_node('ul');
 var author$project$Main$viewSectionService = function (_n0) {
@@ -6501,9 +6757,49 @@ var author$project$Main$viewSectionService = function (_n0) {
 									]),
 								_List_Nil)
 							]))
-					]))
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mobile-list-container')
+					]),
+				A2(elm$core$List$map, author$project$Main$viewMobileServiceContent, serviceContentList))
 			]));
 };
+var author$project$Main$viewSectionTeamIntroduction = A2(
+	elm$html$Html$section,
+	_List_fromArray(
+		[
+			elm$html$Html$Attributes$id('team-introduction')
+		]),
+	_List_fromArray(
+		[
+			A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('float-title')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$h2,
+					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$text('JAPAN INSIDER 成員背景包括'),
+							A2(
+							elm$html$Html$em,
+							_List_Nil,
+							_List_fromArray(
+								[
+									elm$html$Html$text('工程、供應鍊、數位行銷、產品設計,')
+								])),
+							elm$html$Html$text('並且皆任職於其專業領域位於日本的公司。透過對日本市場熟悉的專業團隊, 成為你專案的一份子, 協助你進入日本市場。')
+						]))
+				]))
+		]));
 var elm$html$Html$aside = _VirtualDom_node('aside');
 var author$project$Main$viewSectionTop = A2(
 	elm$html$Html$section,
@@ -6575,7 +6871,12 @@ var author$project$Main$view = function (model) {
 				author$project$Main$viewMailBtn,
 				author$project$Main$viewSectionTop,
 				author$project$Main$viewSectionIntroduction,
-				author$project$Main$viewSectionService(model)
+				author$project$Main$viewSectionService(model),
+				author$project$Main$viewSectionPromotion,
+				author$project$Main$viewSectionTeamIntroduction,
+				author$project$Main$viewSectionMarketDev,
+				author$project$Main$viewSectionMedia(model),
+				author$project$Main$viewFooter
 			]),
 		title: '日本インサイド'
 	};

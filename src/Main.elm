@@ -1,11 +1,12 @@
 module Main exposing (init, view)
 
 import Browser exposing (Document)
-import Html exposing (Html, a, article, aside, div, em, figure, h2, h3, header, img, li, nav, p, section, text, ul)
+import Html exposing (Html, a, article, aside, div, em, figure, footer, h2, h3, header, img, li, nav, p, section, text, ul)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode exposing (Decoder, field, list, map2, map4, string)
+import String exposing (append)
 
 
 
@@ -18,6 +19,7 @@ type alias Model =
     , serviceDetailList : List ServiceDetail
     , serviceIndex : Int
     , successCaseIndex : Int
+    , mediaList : List String
     }
 
 
@@ -48,6 +50,10 @@ successCaseCarouselLength =
     3
 
 
+assetPath =
+    "img/"
+
+
 type CarouselBehaviour
     = Next
     | Prev
@@ -58,6 +64,7 @@ type Msg
     | GotServiceContentList (Result Http.Error (List ServiceContent))
     | GotServiceDetailList (Result Http.Error (List ServiceDetail))
     | Carousel CarouselUseCase CarouselBehaviour
+    | GotMediaList (Result Http.Error (List String))
 
 
 init : () -> ( Model, Cmd Msg )
@@ -67,6 +74,7 @@ init _ =
       , serviceDetailList = []
       , serviceIndex = 0
       , successCaseIndex = 0
+      , mediaList = []
       }
     , Cmd.batch
         [ Http.get
@@ -76,6 +84,10 @@ init _ =
         , Http.get
             { url = "service_detail.json"
             , expect = Http.expectJson GotServiceDetailList decodeServiceDetailList
+            }
+        , Http.get
+            { url = "media.json"
+            , expect = Http.expectJson GotMediaList decodeMediaList
             }
         ]
     )
@@ -109,6 +121,11 @@ serviceDetailDecoder =
     map2 ServiceDetail
         (field "title" string)
         (field "description" string)
+
+
+decodeMediaList : Decoder (List String)
+decodeMediaList =
+    field "data" (list string)
 
 
 
@@ -161,6 +178,14 @@ update msg model =
 
                         Prev ->
                             ( { model | serviceIndex = prevIndex model.serviceIndex successCaseCarouselLength }, Cmd.none )
+
+        GotMediaList result ->
+            case result of
+                Ok mediaList ->
+                    ( { model | mediaList = mediaList }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
 
 
 nextIndex : Int -> Int -> Int
@@ -298,12 +323,23 @@ viewSectionService { serviceContentList, serviceDetailList, serviceIndex } =
                 ]
             , div [ class "next" ] [ div [ class "arrow-right", onClick (Carousel Service Next) ] [] ]
             ]
+        , div [ class "mobile-list-container" ]
+            (List.map viewMobileServiceContent serviceContentList)
         ]
 
 
 viewServiceContent : ServiceContent -> Html Msg
 viewServiceContent { imgSrc, imgAlt, title, description } =
     article [ class "three-grid-item" ]
+        [ div [ class "circle-container" ] [ figure [] [ img [ src imgSrc, alt imgAlt ] [] ] ]
+        , h3 [ class "custom-list-item-title" ] [ text title ]
+        , p [ class "custom-list-item-description" ] [ text description ]
+        ]
+
+
+viewMobileServiceContent : ServiceContent -> Html Msg
+viewMobileServiceContent { imgSrc, imgAlt, title, description } =
+    article [ class "list-item no-bottom-border" ]
         [ div [ class "circle-container" ] [ figure [] [ img [ src imgSrc, alt imgAlt ] [] ] ]
         , h3 [ class "custom-list-item-title" ] [ text title ]
         , p [ class "custom-list-item-description" ] [ text description ]
@@ -318,6 +354,86 @@ viewServiceDetail { title, description } =
         ]
 
 
+viewSectionPromotion : Html Msg
+viewSectionPromotion =
+    section [ id "promotion", class "intro-description" ]
+        [ h2 [ class "text" ] [ text "JAPAN INSIDER" ]
+        , h2 [ class "text" ] [ text "協助團隊成功募資的金額" ]
+        , h2 [] [ em [] [ text "超過 4000萬日幣" ] ]
+        ]
+
+
+
+-- TODO : success-case
+-- TODO : mobile-sucess-case
+
+
+viewSectionTeamIntroduction : Html Msg
+viewSectionTeamIntroduction =
+    section [ id "team-introduction" ]
+        [ div [ class "float-title" ]
+            [ h2 []
+                [ text "JAPAN INSIDER 成員背景包括"
+                , em [] [ text "工程、供應鍊、數位行銷、產品設計," ]
+                , text "並且皆任職於其專業領域位於日本的公司。透過對日本市場熟悉的專業團隊, 成為你專案的一份子, 協助你進入日本市場。"
+                ]
+            ]
+        ]
+
+
+
+-- TODO : team
+-- TODO : mobile-team
+-- TODO : japan-insider
+-- TODO : mobile-japan-insider
+
+
+viewSectionMarketDev : Html Msg
+viewSectionMarketDev =
+    section [ id "market-development-description" ]
+        [ div [ class "float-title" ]
+            [ h3 [ class "section-title" ] [ text "後續市場開發" ]
+            , h2 [ class "promoting-title" ]
+                [ text "JAPAN INSIDER 除了協助團隊規劃群眾募資外, 並協助團隊後續的市場開發。已經成功協助團隊以各種方式開拓日本市場, 包括與"
+                , em [] [ text "當地知名品牌談定合作, 導入當地通路商、進入日本電商平台販賣" ]
+                , text "等。"
+                , a [ id "amazon-link", href "https://japaninsider.typeform.com/to/PXWmex", target "_blank" ]
+                    [ text "日本電商代營運" ]
+                ]
+            ]
+        ]
+
+
+
+-- TODO : partner
+
+
+viewSectionMedia : Model -> Html Msg
+viewSectionMedia { mediaList } =
+    section [ id "media" ]
+        [ h3 [ class "section-title" ] [ text "媒體報導" ]
+        , div [ class "media-container" ]
+            (List.map viewMedia mediaList)
+        ]
+
+
+viewMedia : String -> Html Msg
+viewMedia imgName =
+    let
+        imgSrc =
+            append assetPath imgName
+
+        imgAlt =
+            imgName
+    in
+    figure [] [ img [ class "media-image", src imgSrc, alt imgAlt ] [] ]
+
+
+viewFooter : Html Msg
+viewFooter =
+    footer [] [ figure [] [ img [ class "media-image", src "img/logo.svg", alt "logo" ] [] ] ]
+
+
 view : Model -> Document Msg
 view model =
     { title = "日本インサイド"
@@ -327,6 +443,11 @@ view model =
         , viewSectionTop
         , viewSectionIntroduction
         , viewSectionService model
+        , viewSectionPromotion
+        , viewSectionTeamIntroduction
+        , viewSectionMarketDev
+        , viewSectionMedia model
+        , viewFooter
         ]
     }
 
