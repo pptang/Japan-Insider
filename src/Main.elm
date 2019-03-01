@@ -20,6 +20,7 @@ type alias Model =
     , serviceIndex : Int
     , successCaseIndex : Int
     , mediaList : List String
+    , teamMemberList : List TeamMember
     }
 
 
@@ -34,6 +35,14 @@ type alias ServiceContent =
 type alias ServiceDetail =
     { title : String
     , description : String
+    }
+
+
+type alias TeamMember =
+    { name : String
+    , imgSrc : String
+    , position : String
+    , introduction : String
     }
 
 
@@ -65,6 +74,7 @@ type Msg
     | GotServiceDetailList (Result Http.Error (List ServiceDetail))
     | Carousel CarouselUseCase CarouselBehaviour
     | GotMediaList (Result Http.Error (List String))
+    | GotTeamMemberList (Result Http.Error (List TeamMember))
 
 
 init : () -> ( Model, Cmd Msg )
@@ -75,6 +85,7 @@ init _ =
       , serviceIndex = 0
       , successCaseIndex = 0
       , mediaList = []
+      , teamMemberList = []
       }
     , Cmd.batch
         [ Http.get
@@ -88,6 +99,10 @@ init _ =
         , Http.get
             { url = "media.json"
             , expect = Http.expectJson GotMediaList decodeMediaList
+            }
+        , Http.get
+            { url = "team.json"
+            , expect = Http.expectJson GotTeamMemberList decodeTeamMemberList
             }
         ]
     )
@@ -126,6 +141,20 @@ serviceDetailDecoder =
 decodeMediaList : Decoder (List String)
 decodeMediaList =
     field "data" (list string)
+
+
+teamMemberDecoder : Decoder TeamMember
+teamMemberDecoder =
+    map4 TeamMember
+        (field "name" string)
+        (field "imgSrc" string)
+        (field "position" string)
+        (field "introduction" string)
+
+
+decodeTeamMemberList : Decoder (List TeamMember)
+decodeTeamMemberList =
+    field "data" (list teamMemberDecoder)
 
 
 
@@ -183,6 +212,14 @@ update msg model =
             case result of
                 Ok mediaList ->
                     ( { model | mediaList = mediaList }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        GotTeamMemberList result ->
+            case result of
+                Ok teamMemberList ->
+                    ( { model | teamMemberList = teamMemberList }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -381,8 +418,30 @@ viewSectionTeamIntroduction =
         ]
 
 
+viewSectionTeam : Model -> Html Msg
+viewSectionTeam { teamMemberList } =
+    section [ id "team" ]
+        [ h3 [ class "section-title" ] [ text "團隊成員" ]
+        , div [ class "three-grid-view-container" ] (List.map viewTeamMember teamMemberList)
+        ]
 
--- TODO : team
+
+viewTeamMember : TeamMember -> Html Msg
+viewTeamMember { name, imgSrc, position, introduction } =
+    let
+        imgSrcPath =
+            append assetPath imgSrc
+    in
+    article [ class "three-grid-item black-border-bottom" ]
+        [ div [ class "self-introduction" ] [ text "introduction" ]
+        , img [ src imgSrcPath, alt imgSrc ] []
+        , p [ class "list-item-title" ] [ text position ]
+        , div [ class "list-item-description align-left" ]
+            [ text name, div [ class "big-arrow" ] [] ]
+        ]
+
+
+
 -- TODO : mobile-team
 -- TODO : japan-insider
 -- TODO : mobile-japan-insider
@@ -445,6 +504,7 @@ view model =
         , viewSectionService model
         , viewSectionPromotion
         , viewSectionTeamIntroduction
+        , viewSectionTeam model
         , viewSectionMarketDev
         , viewSectionMedia model
         , viewFooter

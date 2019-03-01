@@ -4494,6 +4494,9 @@ var author$project$Main$GotServiceContentList = function (a) {
 var author$project$Main$GotServiceDetailList = function (a) {
 	return {$: 'GotServiceDetailList', a: a};
 };
+var author$project$Main$GotTeamMemberList = function (a) {
+	return {$: 'GotTeamMemberList', a: a};
+};
 var elm$core$Array$branchFactor = 32;
 var elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
@@ -5006,6 +5009,21 @@ var author$project$Main$decodeServiceDetailList = A2(
 	elm$json$Json$Decode$field,
 	'data',
 	elm$json$Json$Decode$list(author$project$Main$serviceDetailDecoder));
+var author$project$Main$TeamMember = F4(
+	function (name, imgSrc, position, introduction) {
+		return {imgSrc: imgSrc, introduction: introduction, name: name, position: position};
+	});
+var author$project$Main$teamMemberDecoder = A5(
+	elm$json$Json$Decode$map4,
+	author$project$Main$TeamMember,
+	A2(elm$json$Json$Decode$field, 'name', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'imgSrc', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'position', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'introduction', elm$json$Json$Decode$string));
+var author$project$Main$decodeTeamMemberList = A2(
+	elm$json$Json$Decode$field,
+	'data',
+	elm$json$Json$Decode$list(author$project$Main$teamMemberDecoder));
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Result$mapError = F2(
 	function (f, result) {
@@ -5890,7 +5908,7 @@ var elm$http$Http$get = function (r) {
 };
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
-		{mediaList: _List_Nil, navBarClassNames: _List_Nil, serviceContentList: _List_Nil, serviceDetailList: _List_Nil, serviceIndex: 0, successCaseIndex: 0},
+		{mediaList: _List_Nil, navBarClassNames: _List_Nil, serviceContentList: _List_Nil, serviceDetailList: _List_Nil, serviceIndex: 0, successCaseIndex: 0, teamMemberList: _List_Nil},
 		elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
@@ -5908,6 +5926,11 @@ var author$project$Main$init = function (_n0) {
 					{
 						expect: A2(elm$http$Http$expectJson, author$project$Main$GotMediaList, author$project$Main$decodeMediaList),
 						url: 'media.json'
+					}),
+					elm$http$Http$get(
+					{
+						expect: A2(elm$http$Http$expectJson, author$project$Main$GotTeamMemberList, author$project$Main$decodeTeamMemberList),
+						url: 'team.json'
 					})
 				])));
 };
@@ -6011,7 +6034,7 @@ var author$project$Main$update = F2(
 							elm$core$Platform$Cmd$none);
 					}
 				}
-			default:
+			case 'GotMediaList':
 				var result = msg.a;
 				if (result.$ === 'Ok') {
 					var mediaList = result.a;
@@ -6019,6 +6042,18 @@ var author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{mediaList: mediaList}),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
+			default:
+				var result = msg.a;
+				if (result.$ === 'Ok') {
+					var teamMemberList = result.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{teamMemberList: teamMemberList}),
 						elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
@@ -6767,6 +6802,96 @@ var author$project$Main$viewSectionService = function (_n0) {
 				A2(elm$core$List$map, author$project$Main$viewMobileServiceContent, serviceContentList))
 			]));
 };
+var author$project$Main$viewTeamMember = function (_n0) {
+	var name = _n0.name;
+	var imgSrc = _n0.imgSrc;
+	var position = _n0.position;
+	var introduction = _n0.introduction;
+	var imgSrcPath = A2(elm$core$String$append, author$project$Main$assetPath, imgSrc);
+	return A2(
+		elm$html$Html$article,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('three-grid-item black-border-bottom')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('self-introduction')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('introduction')
+					])),
+				A2(
+				elm$html$Html$img,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$src(imgSrcPath),
+						elm$html$Html$Attributes$alt(imgSrc)
+					]),
+				_List_Nil),
+				A2(
+				elm$html$Html$p,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('list-item-title')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(position)
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('list-item-description align-left')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(name),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('big-arrow')
+							]),
+						_List_Nil)
+					]))
+			]));
+};
+var author$project$Main$viewSectionTeam = function (_n0) {
+	var teamMemberList = _n0.teamMemberList;
+	return A2(
+		elm$html$Html$section,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$id('team')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$h3,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('section-title')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('團隊成員')
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('three-grid-view-container')
+					]),
+				A2(elm$core$List$map, author$project$Main$viewTeamMember, teamMemberList))
+			]));
+};
 var author$project$Main$viewSectionTeamIntroduction = A2(
 	elm$html$Html$section,
 	_List_fromArray(
@@ -6874,6 +6999,7 @@ var author$project$Main$view = function (model) {
 				author$project$Main$viewSectionService(model),
 				author$project$Main$viewSectionPromotion,
 				author$project$Main$viewSectionTeamIntroduction,
+				author$project$Main$viewSectionTeam(model),
 				author$project$Main$viewSectionMarketDev,
 				author$project$Main$viewSectionMedia(model),
 				author$project$Main$viewFooter
