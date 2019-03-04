@@ -423,6 +423,7 @@ viewSectionTeam { teamMemberList } =
     section [ id "team" ]
         [ h3 [ class "section-title" ] [ text "團隊成員" ]
         , div [ class "three-grid-view-container" ] (List.map viewTeamMember teamMemberList)
+        , div [ class "mobile-list-container" ] (List.map viewMobileTeamMember teamMemberList)
         ]
 
 
@@ -433,7 +434,7 @@ viewTeamMember { name, imgSrc, position, introduction } =
             append assetPath imgSrc
     in
     article [ class "three-grid-item black-border-bottom" ]
-        [ div [ class "self-introduction" ] [ text "introduction" ]
+        [ div [ class "self-introduction" ] [ text introduction ]
         , img [ src imgSrcPath, alt imgSrc ] []
         , p [ class "list-item-title" ] [ text position ]
         , div [ class "list-item-description align-left" ]
@@ -441,8 +442,21 @@ viewTeamMember { name, imgSrc, position, introduction } =
         ]
 
 
+viewMobileTeamMember : TeamMember -> Html Msg
+viewMobileTeamMember { name, imgSrc, position, introduction } =
+    let
+        imgSrcPath =
+            append assetPath imgSrc
+    in
+    article [ class "list-item" ]
+        [ div [ class "self-introduction" ] [ text introduction ]
+        , img [ src imgSrcPath, alt imgSrc ] []
+        , p [ class "list-item-title" ] [ text position ]
+        , div [ class "list-item-description" ] [ text name, div [ class "big-arrow" ] [] ]
+        ]
 
--- TODO : mobile-team
+
+
 -- TODO : japan-insider
 -- TODO : mobile-japan-insider
 
