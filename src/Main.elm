@@ -5,7 +5,7 @@ import Html exposing (Html, a, article, aside, div, em, figure, footer, h2, h3, 
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
-import Json.Decode exposing (Decoder, field, list, map2, map4, string)
+import Json.Decode exposing (Decoder, field, list, map2, map3, map4, map5, string)
 import String exposing (append)
 
 
@@ -21,6 +21,7 @@ type alias Model =
     , successCaseIndex : Int
     , mediaList : List String
     , teamMemberList : List TeamMember
+    , articleList : List Article
     }
 
 
@@ -43,6 +44,22 @@ type alias TeamMember =
     , imgSrc : String
     , position : String
     , introduction : String
+    }
+
+
+type alias Date =
+    { year : String
+    , month : String
+    , day : String
+    }
+
+
+type alias Article =
+    { imgSrc : String
+    , date : Date
+    , title : String
+    , description : String
+    , link : String
     }
 
 
@@ -75,6 +92,7 @@ type Msg
     | Carousel CarouselUseCase CarouselBehaviour
     | GotMediaList (Result Http.Error (List String))
     | GotTeamMemberList (Result Http.Error (List TeamMember))
+    | GotArticleList (Result Http.Error (List Article))
 
 
 init : () -> ( Model, Cmd Msg )
@@ -86,6 +104,7 @@ init _ =
       , successCaseIndex = 0
       , mediaList = []
       , teamMemberList = []
+      , articleList = []
       }
     , Cmd.batch
         [ Http.get
@@ -103,6 +122,10 @@ init _ =
         , Http.get
             { url = "team.json"
             , expect = Http.expectJson GotTeamMemberList decodeTeamMemberList
+            }
+        , Http.get
+            { url = "article.json"
+            , expect = Http.expectJson GotArticleList decodeArticleList
             }
         ]
     )
@@ -155,6 +178,29 @@ teamMemberDecoder =
 decodeTeamMemberList : Decoder (List TeamMember)
 decodeTeamMemberList =
     field "data" (list teamMemberDecoder)
+
+
+dateDecoder : Decoder Date
+dateDecoder =
+    map3 Date
+        (field "year" string)
+        (field "month" string)
+        (field "day" string)
+
+
+articleDecoder : Decoder Article
+articleDecoder =
+    map5 Article
+        (field "imgSrc" string)
+        (field "date" dateDecoder)
+        (field "title" string)
+        (field "description" string)
+        (field "link" string)
+
+
+decodeArticleList : Decoder (List Article)
+decodeArticleList =
+    field "data" (list articleDecoder)
 
 
 
@@ -220,6 +266,14 @@ update msg model =
             case result of
                 Ok teamMemberList ->
                     ( { model | teamMemberList = teamMemberList }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        GotArticleList result ->
+            case result of
+                Ok articleList ->
+                    ( { model | articleList = articleList }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -456,8 +510,58 @@ viewMobileTeamMember { name, imgSrc, position, introduction } =
         ]
 
 
+viewSectionJapanInsider : Model -> Html Msg
+viewSectionJapanInsider { articleList } =
+    section [ id "japan-insider" ]
+        [ h3 [ class "section-title" ] [ text "日本內幕部落格" ]
+        , div [ class "three-grid-view-container" ] (List.map viewArticle articleList)
+        , div [ class "mobile-list-container" ] (List.map viewMobileArticle articleList)
+        ]
 
--- TODO : japan-insider
+
+viewArticle : Article -> Html Msg
+viewArticle { imgSrc, date, title, description, link } =
+    let
+        imgSrcPath =
+            append assetPath imgSrc
+    in
+    article [ class "three-grid-item list-item-shadow" ]
+        [ img [ class "big-image red-bottome-border", src imgSrcPath, alt title ] []
+        , div [ class "blog-text-content" ]
+            [ div [ class "blog-item-header" ] []
+            , div [ class "blog-item-date" ]
+                [ p [] [ text (date.year ++ ".") ]
+                , p [] [ text (date.month ++ "." ++ date.day) ]
+                ]
+            , div [ class "blog-item-title" ] [ text title ]
+            , p [ class "blog-item-description" ] [ text description ]
+            , a [ class "continue-reading", href link ] [ text "(...繼續閱讀)" ]
+            ]
+        ]
+
+
+viewMobileArticle : Article -> Html Msg
+viewMobileArticle { imgSrc, date, title, description, link } =
+    let
+        imgSrcPath =
+            append assetPath imgSrc
+    in
+    article [ class "list-item list-item-shadow no-bottom-border" ]
+        [ img [ class "red-bottome-border", src imgSrcPath, alt title ] []
+        , div [ class "blog-text-content" ]
+            [ div [ class "blog-item-header" ] []
+            , div [ class "blog-item-date" ]
+                [ p [] [ text (date.year ++ ".") ]
+                , p [] [ text (date.month ++ "." ++ date.day) ]
+                ]
+            , div [ class "blog-item-title" ] [ text title ]
+            , p [ class "blog-item-description" ] [ text description ]
+            , a [ class "continue-reading", href link ] [ text "(...繼續閱讀)" ]
+            ]
+        ]
+
+
+
 -- TODO : mobile-japan-insider
 
 
