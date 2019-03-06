@@ -1,11 +1,12 @@
 module Main exposing (init, view)
 
 import Browser exposing (Document)
-import Html exposing (Html, a, article, aside, div, em, figure, footer, h2, h3, header, img, li, nav, p, section, text, ul)
+import Browser.Navigation
+import Html exposing (Html, a, article, aside, div, em, figure, footer, h2, h3, h4, header, img, li, nav, p, section, span, text, ul)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
-import Json.Decode exposing (Decoder, field, list, map2, map3, map4, map5, string)
+import Json.Decode exposing (Decoder, field, int, list, map2, map3, map4, map5, map6, string)
 import String exposing (append)
 
 
@@ -22,6 +23,8 @@ type alias Model =
     , mediaList : List String
     , teamMemberList : List TeamMember
     , articleList : List Article
+    , fundRaiseStats : FundRaiseStats
+    , successStoryList : List Story
     }
 
 
@@ -63,6 +66,18 @@ type alias Article =
     }
 
 
+type alias FundRaiseStats =
+    { successCaseNum : Int
+    , successRate : Int
+    , totalFund : Int
+    , funders : Int
+    }
+
+
+type alias Story =
+    { link : String, imgSrc : String, title : String, description : String, fundRaiseAmount : String, funders : Int }
+
+
 type CarouselUseCase
     = Service
     | SuccessCase
@@ -93,6 +108,9 @@ type Msg
     | GotMediaList (Result Http.Error (List String))
     | GotTeamMemberList (Result Http.Error (List TeamMember))
     | GotArticleList (Result Http.Error (List Article))
+    | GotStoryList (Result Http.Error (List Story))
+    | GotFundRaiseStats (Result Http.Error FundRaiseStats)
+    | LinkToUrl String
 
 
 init : () -> ( Model, Cmd Msg )
@@ -105,6 +123,8 @@ init _ =
       , mediaList = []
       , teamMemberList = []
       , articleList = []
+      , fundRaiseStats = { successCaseNum = 0, successRate = 0, totalFund = 0, funders = 0 }
+      , successStoryList = []
       }
     , Cmd.batch
         [ Http.get
@@ -126,6 +146,14 @@ init _ =
         , Http.get
             { url = "article.json"
             , expect = Http.expectJson GotArticleList decodeArticleList
+            }
+        , Http.get
+            { url = "story.json"
+            , expect = Http.expectJson GotStoryList decodeStoryList
+            }
+        , Http.get
+            { url = "fund_raise_stats.json"
+            , expect = Http.expectJson GotFundRaiseStats decodeFundRaiseStats
             }
         ]
     )
@@ -203,6 +231,31 @@ decodeArticleList =
     field "data" (list articleDecoder)
 
 
+storyDecoder : Decoder Story
+storyDecoder =
+    map6 Story
+        (field "link" string)
+        (field "imgSrc" string)
+        (field "title" string)
+        (field "description" string)
+        (field "fundRaiseAmount" string)
+        (field "funders" int)
+
+
+decodeStoryList : Decoder (List Story)
+decodeStoryList =
+    field "data" (list storyDecoder)
+
+
+decodeFundRaiseStats : Decoder FundRaiseStats
+decodeFundRaiseStats =
+    map4 FundRaiseStats
+        (field "successCaseNum" int)
+        (field "successRate" int)
+        (field "totalFund" int)
+        (field "funders" int)
+
+
 
 -- UPDATE
 
@@ -277,6 +330,25 @@ update msg model =
 
                 Err _ ->
                     ( model, Cmd.none )
+
+        GotStoryList result ->
+            case result of
+                Ok successStoryList ->
+                    ( { model | successStoryList = successStoryList }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        GotFundRaiseStats result ->
+            case result of
+                Ok fundRaiseStats ->
+                    ( { model | fundRaiseStats = fundRaiseStats }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        LinkToUrl link ->
+            ( model, Browser.Navigation.load link )
 
 
 nextIndex : Int -> Int -> Int
@@ -454,9 +526,73 @@ viewSectionPromotion =
         ]
 
 
+viewSectionSuccessCase : Model -> Html Msg
+viewSectionSuccessCase { fundRaiseStats, successStoryList, successCaseIndex } =
+    section [ id "success-case" ]
+        [ h3 [ class "section-title" ] [ text "過去實績" ]
+        , div [ class "carousel" ]
+            [ div [ class "prev" ] [ div [ class "arrow-left", onClick (Carousel SuccessCase Prev) ] [] ]
+            , ul [ class "slider" ]
+                [ li
+                    [ class
+                        (if successCaseIndex == 0 then
+                            "visible"
 
--- TODO : success-case
--- TODO : mobile-sucess-case
+                         else
+                            ""
+                        )
+                    ]
+                    [ viewSuccessResult fundRaiseStats
+                    , li
+                        [ class
+                            (if successCaseIndex == 1 then
+                                "visible"
+
+                             else
+                                ""
+                            )
+                        ]
+                        [ div [ class "three-grid-view-container" ]
+                            (List.map viewStory successStoryList)
+                        ]
+                    ]
+                , div [ class "next" ] [ div [ class "arrow-right", onClick (Carousel Service Next) ] [] ]
+                ]
+            ]
+        , div [ class "mobile-flex-container" ]
+            [ viewSuccessResult fundRaiseStats ]
+        , div [ class "mobile-list-container" ] (List.map viewStory successStoryList)
+        ]
+
+
+viewSuccessResult : FundRaiseStats -> Html Msg
+viewSuccessResult fundRaiseStats =
+    div [ class "four-grid-view-container" ]
+        [ article [ class "four-grid-item" ]
+            [ h2 [ class "success-title" ]
+                [ text "執行募資案" ]
+            , p [ class "success-number success-circle-container" ] [ text (String.fromInt fundRaiseStats.successCaseNum) ]
+            ]
+        , article [ class "four-grid-item" ]
+            [ h2 [ class "success-title" ]
+                [ text "募資成功率" ]
+            , p [ class "success-number success-circle-container" ] [ text (String.fromInt fundRaiseStats.successRate ++ "%") ]
+            ]
+        , article [ class "four-grid-item" ]
+            [ h2 [ class "success-title" ]
+                [ text "募資總金額" ]
+            , p [ class "success-number success-circle-container red-background" ]
+                [ text ("&#165;" ++ String.fromInt fundRaiseStats.totalFund)
+                , span [ class "small-font-size" ] [ text "Million" ]
+                ]
+            ]
+        , article [ class "four-grid-item" ]
+            [ h2 [ class "success-title" ]
+                [ text "募資支持者" ]
+            , p [ class "success-number success-circle-container" ]
+                [ text (String.fromInt fundRaiseStats.funders) ]
+            ]
+        ]
 
 
 viewSectionTeamIntroduction : Html Msg
@@ -561,8 +697,24 @@ viewMobileArticle { imgSrc, date, title, description, link } =
         ]
 
 
-
--- TODO : mobile-japan-insider
+viewStory : Story -> Html Msg
+viewStory { link, imgSrc, title, description, fundRaiseAmount, funders } =
+    let
+        imgSrcPath =
+            append assetPath imgSrc
+    in
+    article [ class "three-grid-item list-item-shadow fund-raise-link", onClick (LinkToUrl link) ]
+        [ img [ class "fund-raise-image", src imgSrcPath, alt title ] []
+        , div [ class "fund-raise-content" ]
+            [ h3 [ class "fund-raise-title" ] [ text title ]
+            , p [ class "fund-raise-description" ] [ text description ]
+            , div [ class "fund-raise-detail" ]
+                [ h4 [] [ text "FUND RAISED:" ]
+                , p [ class "fund-raise-amount" ] [ text ("&#165;" ++ fundRaiseAmount) ]
+                , p [ class "funder-number" ] [ text ("funder" ++ String.fromInt funders) ]
+                ]
+            ]
+        ]
 
 
 viewSectionMarketDev : Html Msg
@@ -621,8 +773,10 @@ view model =
         , viewSectionIntroduction
         , viewSectionService model
         , viewSectionPromotion
+        , viewSectionSuccessCase model
         , viewSectionTeamIntroduction
         , viewSectionTeam model
+        , viewSectionJapanInsider model
         , viewSectionMarketDev
         , viewSectionMedia model
         , viewFooter
