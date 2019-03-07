@@ -1,3 +1,2 @@
 #!/bin/sh
-elm make src/Main.elm --output=elm.js
-http-server && open ./index.html
+elm-live -p 3000 src/Main.elm --open -- --output=elm.js --debug

@@ -25,6 +25,7 @@ type alias Model =
     , articleList : List Article
     , fundRaiseStats : FundRaiseStats
     , successStoryList : List Story
+    , errorMsg : Maybe Http.Error
     }
 
 
@@ -69,7 +70,7 @@ type alias Article =
 type alias FundRaiseStats =
     { successCaseNum : Int
     , successRate : Int
-    , totalFund : Int
+    , totalFund : String
     , funders : Int
     }
 
@@ -85,10 +86,6 @@ type CarouselUseCase
 
 serviceCarouselLength =
     2
-
-
-successCaseCarouselLength =
-    3
 
 
 assetPath =
@@ -123,8 +120,9 @@ init _ =
       , mediaList = []
       , teamMemberList = []
       , articleList = []
-      , fundRaiseStats = { successCaseNum = 0, successRate = 0, totalFund = 0, funders = 0 }
+      , fundRaiseStats = { successCaseNum = 0, successRate = 0, totalFund = "", funders = 0 }
       , successStoryList = []
+      , errorMsg = Nothing
       }
     , Cmd.batch
         [ Http.get
@@ -252,7 +250,7 @@ decodeFundRaiseStats =
     map4 FundRaiseStats
         (field "successCaseNum" int)
         (field "successRate" int)
-        (field "totalFund" int)
+        (field "totalFund" string)
         (field "funders" int)
 
 
@@ -262,6 +260,10 @@ decodeFundRaiseStats =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    let
+        successCaseCarouselLength =
+            round (toFloat (List.length model.successStoryList) / 3) + 1
+    in
     case msg of
         TOGGLE ->
             case List.length model.navBarClassNames of
@@ -302,10 +304,10 @@ update msg model =
                 SuccessCase ->
                     case behaviour of
                         Next ->
-                            ( { model | serviceIndex = nextIndex model.serviceIndex successCaseCarouselLength }, Cmd.none )
+                            ( { model | successCaseIndex = nextIndex model.successCaseIndex successCaseCarouselLength }, Cmd.none )
 
                         Prev ->
-                            ( { model | serviceIndex = prevIndex model.serviceIndex successCaseCarouselLength }, Cmd.none )
+                            ( { model | successCaseIndex = prevIndex model.successCaseIndex successCaseCarouselLength }, Cmd.none )
 
         GotMediaList result ->
             case result of
@@ -344,9 +346,10 @@ update msg model =
                 Ok fundRaiseStats ->
                     ( { model | fundRaiseStats = fundRaiseStats }, Cmd.none )
 
-                Err _ ->
-                    ( model, Cmd.none )
+                Err err ->
+                    ( { model | errorMsg = Just err }, Cmd.none )
 
+        -- ( model, Cmd.none )
         LinkToUrl link ->
             ( model, Browser.Navigation.load link )
 
@@ -533,7 +536,7 @@ viewSectionSuccessCase { fundRaiseStats, successStoryList, successCaseIndex } =
         , div [ class "carousel" ]
             [ div [ class "prev" ] [ div [ class "arrow-left", onClick (Carousel SuccessCase Prev) ] [] ]
             , ul [ class "slider" ]
-                [ li
+                ([ li
                     [ class
                         (if successCaseIndex == 0 then
                             "visible"
@@ -542,27 +545,49 @@ viewSectionSuccessCase { fundRaiseStats, successStoryList, successCaseIndex } =
                             ""
                         )
                     ]
-                    [ viewSuccessResult fundRaiseStats
-                    , li
-                        [ class
-                            (if successCaseIndex == 1 then
-                                "visible"
-
-                             else
-                                ""
-                            )
-                        ]
-                        [ div [ class "three-grid-view-container" ]
-                            (List.map viewStory successStoryList)
-                        ]
-                    ]
-                , div [ class "next" ] [ div [ class "arrow-right", onClick (Carousel Service Next) ] [] ]
-                ]
+                    [ viewSuccessResult fundRaiseStats ]
+                 ]
+                    ++ dynamicallyInsertSuccessStoryCarouselItem
+                        successStoryList
+                        successCaseIndex
+                        1
+                )
+            , div [ class "next" ] [ div [ class "arrow-right", onClick (Carousel SuccessCase Next) ] [] ]
             ]
         , div [ class "mobile-flex-container" ]
             [ viewSuccessResult fundRaiseStats ]
         , div [ class "mobile-list-container" ] (List.map viewStory successStoryList)
         ]
+
+
+dynamicallyInsertSuccessStoryCarouselItem : List Story -> Int -> Int -> List (Html Msg)
+dynamicallyInsertSuccessStoryCarouselItem storyList currentCarouselIndex currentStoryListIndex =
+    let
+        firstThreeStoryList =
+            List.take 3 storyList
+
+        restStoryList =
+            List.drop 3 storyList
+    in
+    case List.length firstThreeStoryList of
+        0 ->
+            []
+
+        _ ->
+            [ li
+                [ class
+                    (if currentCarouselIndex == currentStoryListIndex then
+                        "visible"
+
+                     else
+                        ""
+                    )
+                ]
+                [ div [ class "three-grid-view-container" ]
+                    (List.map viewStory firstThreeStoryList)
+                ]
+            ]
+                ++ dynamicallyInsertSuccessStoryCarouselItem restStoryList currentCarouselIndex (currentStoryListIndex + 1)
 
 
 viewSuccessResult : FundRaiseStats -> Html Msg
@@ -582,7 +607,7 @@ viewSuccessResult fundRaiseStats =
             [ h2 [ class "success-title" ]
                 [ text "募資總金額" ]
             , p [ class "success-number success-circle-container red-background" ]
-                [ text ("&#165;" ++ String.fromInt fundRaiseStats.totalFund)
+                [ text ("¥" ++ fundRaiseStats.totalFund)
                 , span [ class "small-font-size" ] [ text "Million" ]
                 ]
             ]
@@ -664,12 +689,13 @@ viewArticle { imgSrc, date, title, description, link } =
     article [ class "three-grid-item list-item-shadow" ]
         [ img [ class "big-image red-bottome-border", src imgSrcPath, alt title ] []
         , div [ class "blog-text-content" ]
-            [ div [ class "blog-item-header" ] []
-            , div [ class "blog-item-date" ]
-                [ p [] [ text (date.year ++ ".") ]
-                , p [] [ text (date.month ++ "." ++ date.day) ]
+            [ div [ class "blog-item-header" ]
+                [ div [ class "blog-item-date" ]
+                    [ p [] [ text (date.year ++ ".") ]
+                    , p [] [ text (date.month ++ "." ++ date.day) ]
+                    ]
+                , div [ class "blog-item-title" ] [ text title ]
                 ]
-            , div [ class "blog-item-title" ] [ text title ]
             , p [ class "blog-item-description" ] [ text description ]
             , a [ class "continue-reading", href link ] [ text "(...繼續閱讀)" ]
             ]
@@ -710,7 +736,7 @@ viewStory { link, imgSrc, title, description, fundRaiseAmount, funders } =
             , p [ class "fund-raise-description" ] [ text description ]
             , div [ class "fund-raise-detail" ]
                 [ h4 [] [ text "FUND RAISED:" ]
-                , p [ class "fund-raise-amount" ] [ text ("&#165;" ++ fundRaiseAmount) ]
+                , p [ class "fund-raise-amount" ] [ text ("¥" ++ fundRaiseAmount) ]
                 , p [ class "funder-number" ] [ text ("funder" ++ String.fromInt funders) ]
                 ]
             ]
