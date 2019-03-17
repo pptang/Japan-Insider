@@ -137,35 +137,35 @@ init _ =
       }
     , Cmd.batch
         [ Http.get
-            { url = "service_content.json"
+            { url = "../data/service_content.json"
             , expect = Http.expectJson GotServiceContentList decodeServiceContentList
             }
         , Http.get
-            { url = "service_detail.json"
+            { url = "../data/service_detail.json"
             , expect = Http.expectJson GotServiceDetailList decodeServiceDetailList
             }
         , Http.get
-            { url = "media.json"
+            { url = "../data/media.json"
             , expect = Http.expectJson GotMediaList decodeMediaList
             }
         , Http.get
-            { url = "partner.json"
+            { url = "../data/partner.json"
             , expect = Http.expectJson GotPartnerList decodeMediaList
             }
         , Http.get
-            { url = "team.json"
+            { url = "../data/team.json"
             , expect = Http.expectJson GotTeamMemberList decodeTeamMemberList
             }
         , Http.get
-            { url = "article.json"
+            { url = "../data/article.json"
             , expect = Http.expectJson GotArticleList decodeArticleList
             }
         , Http.get
-            { url = "story.json"
+            { url = "../data/story.json"
             , expect = Http.expectJson GotStoryList decodeStoryList
             }
         , Http.get
-            { url = "fund_raise_stats.json"
+            { url = "../data/fund_raise_stats.json"
             , expect = Http.expectJson GotFundRaiseStats decodeFundRaiseStats
             }
         ]
