@@ -22,6 +22,7 @@ type alias Model =
     , successCaseIndex : Int
     , mediaList : List String
     , teamMemberList : List TeamMember
+    , selectedTeamMemberIndex : Int
     , articleList : List Article
     , fundRaiseStats : FundRaiseStats
     , successStoryList : List Story
@@ -108,6 +109,7 @@ type Msg
     | GotStoryList (Result Http.Error (List Story))
     | GotFundRaiseStats (Result Http.Error FundRaiseStats)
     | LinkToUrl String
+    | SelectTeamMember Int
 
 
 init : () -> ( Model, Cmd Msg )
@@ -119,6 +121,7 @@ init _ =
       , successCaseIndex = 0
       , mediaList = []
       , teamMemberList = []
+      , selectedTeamMemberIndex = -1
       , articleList = []
       , fundRaiseStats = { successCaseNum = 0, successRate = 0, totalFund = "", funders = 0 }
       , successStoryList = []
@@ -349,9 +352,11 @@ update msg model =
                 Err err ->
                     ( { model | errorMsg = Just err }, Cmd.none )
 
-        -- ( model, Cmd.none )
         LinkToUrl link ->
             ( model, Browser.Navigation.load link )
+
+        SelectTeamMember index ->
+            ( { model | selectedTeamMemberIndex = index }, Cmd.none )
 
 
 nextIndex : Int -> Int -> Int
@@ -556,7 +561,7 @@ viewSectionSuccessCase { fundRaiseStats, successStoryList, successCaseIndex } =
             ]
         , div [ class "mobile-flex-container" ]
             [ viewSuccessResult fundRaiseStats ]
-        , div [ class "mobile-list-container" ] (List.map viewStory successStoryList)
+        , div [ class "mobile-list-container" ] (List.map viewMobileStory successStoryList)
         ]
 
 
@@ -634,21 +639,32 @@ viewSectionTeamIntroduction =
 
 
 viewSectionTeam : Model -> Html Msg
-viewSectionTeam { teamMemberList } =
+viewSectionTeam { teamMemberList, selectedTeamMemberIndex } =
     section [ id "team" ]
         [ h3 [ class "section-title" ] [ text "團隊成員" ]
-        , div [ class "three-grid-view-container" ] (List.map viewTeamMember teamMemberList)
+        , div [ class "three-grid-view-container" ] (List.indexedMap (viewTeamMember selectedTeamMemberIndex) teamMemberList)
         , div [ class "mobile-list-container" ] (List.map viewMobileTeamMember teamMemberList)
         ]
 
 
-viewTeamMember : TeamMember -> Html Msg
-viewTeamMember { name, imgSrc, position, introduction } =
+viewTeamMember : Int -> Int -> TeamMember -> Html Msg
+viewTeamMember selectedTeamMemberIndex index { name, imgSrc, position, introduction } =
     let
         imgSrcPath =
             append assetPath imgSrc
     in
-    article [ class "three-grid-item black-border-bottom" ]
+    article
+        [ class
+            ("three-grid-item black-border-bottom"
+                ++ (if selectedTeamMemberIndex == index then
+                        " selected"
+
+                    else
+                        ""
+                   )
+            )
+        , onClick (SelectTeamMember index)
+        ]
         [ div [ class "self-introduction" ] [ text introduction ]
         , img [ src imgSrcPath, alt imgSrc ] []
         , p [ class "list-item-title" ] [ text position ]
@@ -737,7 +753,27 @@ viewStory { link, imgSrc, title, description, fundRaiseAmount, funders } =
             , div [ class "fund-raise-detail" ]
                 [ h4 [] [ text "FUND RAISED:" ]
                 , p [ class "fund-raise-amount" ] [ text ("¥" ++ fundRaiseAmount) ]
-                , p [ class "funder-number" ] [ text ("funder" ++ String.fromInt funders) ]
+                , p [ class "funder-numbers" ] [ text ("funder" ++ String.fromInt funders) ]
+                ]
+            ]
+        ]
+
+
+viewMobileStory : Story -> Html Msg
+viewMobileStory { link, imgSrc, title, description, fundRaiseAmount, funders } =
+    let
+        imgSrcPath =
+            append assetPath imgSrc
+    in
+    article [ class "list-item fund-raise-link", onClick (LinkToUrl link) ]
+        [ img [ class "fund-raise-image", src imgSrcPath, alt title ] []
+        , div [ class "fund-raise-content" ]
+            [ h3 [ class "fund-raise-title" ] [ text title ]
+            , p [ class "fund-raise-description" ] [ text description ]
+            , div [ class "fund-raise-detail" ]
+                [ h4 [] [ text "FUND RAISED:" ]
+                , p [ class "fund-raise-amount" ] [ text ("¥" ++ fundRaiseAmount) ]
+                , p [ class "funder-numbers" ] [ text ("funder" ++ String.fromInt funders) ]
                 ]
             ]
         ]

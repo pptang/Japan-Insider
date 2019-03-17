@@ -5651,6 +5651,9 @@ var author$project$Main$decodeTeamMemberList = A2(
 	elm$json$Json$Decode$field,
 	'data',
 	elm$json$Json$Decode$list(author$project$Main$teamMemberDecoder));
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Result$mapError = F2(
 	function (f, result) {
@@ -6541,6 +6544,7 @@ var author$project$Main$init = function (_n0) {
 			fundRaiseStats: {funders: 0, successCaseNum: 0, successRate: 0, totalFund: ''},
 			mediaList: _List_Nil,
 			navBarClassNames: _List_Nil,
+			selectedTeamMemberIndex: -1,
 			serviceContentList: _List_Nil,
 			serviceDetailList: _List_Nil,
 			serviceIndex: 0,
@@ -7471,9 +7475,6 @@ var elm$core$String$left = F2(
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
 	});
 var elm$core$String$length = _String_length;
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var elm$core$String$right = F2(
 	function (n, string) {
 		return (n < 1) ? '' : A3(
@@ -10415,11 +10416,18 @@ var author$project$Main$update = F2(
 							}),
 						elm$core$Platform$Cmd$none);
 				}
-			default:
+			case 'LinkToUrl':
 				var link = msg.a;
 				return _Utils_Tuple2(
 					model,
 					elm$browser$Browser$Navigation$load(link));
+			default:
+				var index = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{selectedTeamMemberIndex: index}),
+					elm$core$Platform$Cmd$none);
 		}
 	});
 var elm$html$Html$figure = _VirtualDom_node('figure');
@@ -11415,7 +11423,7 @@ var author$project$Main$viewStory = function (_n0) {
 								elm$html$Html$p,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('funder-number')
+										elm$html$Html$Attributes$class('funder-numbers')
 									]),
 								_List_fromArray(
 									[
@@ -11605,6 +11613,101 @@ var author$project$Main$dynamicallyInsertSuccessStoryCarouselItem = F3(
 				A3(author$project$Main$dynamicallyInsertSuccessStoryCarouselItem, restStoryList, currentCarouselIndex, currentStoryListIndex + 1));
 		}
 	});
+var author$project$Main$viewMobileStory = function (_n0) {
+	var link = _n0.link;
+	var imgSrc = _n0.imgSrc;
+	var title = _n0.title;
+	var description = _n0.description;
+	var fundRaiseAmount = _n0.fundRaiseAmount;
+	var funders = _n0.funders;
+	var imgSrcPath = A2(elm$core$String$append, author$project$Main$assetPath, imgSrc);
+	return A2(
+		elm$html$Html$article,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('list-item fund-raise-link'),
+				elm$html$Html$Events$onClick(
+				author$project$Main$LinkToUrl(link))
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$img,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('fund-raise-image'),
+						elm$html$Html$Attributes$src(imgSrcPath),
+						elm$html$Html$Attributes$alt(title)
+					]),
+				_List_Nil),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('fund-raise-content')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$h3,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('fund-raise-title')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text(title)
+							])),
+						A2(
+						elm$html$Html$p,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('fund-raise-description')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text(description)
+							])),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('fund-raise-detail')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$h4,
+								_List_Nil,
+								_List_fromArray(
+									[
+										elm$html$Html$text('FUND RAISED:')
+									])),
+								A2(
+								elm$html$Html$p,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('fund-raise-amount')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('¥' + fundRaiseAmount)
+									])),
+								A2(
+								elm$html$Html$p,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('funder-numbers')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text(
+										'funder' + elm$core$String$fromInt(funders))
+									]))
+							]))
+					]))
+			]));
+};
 var author$project$Main$viewSuccessResult = function (fundRaiseStats) {
 	return A2(
 		elm$html$Html$div,
@@ -11850,7 +11953,7 @@ var author$project$Main$viewSectionSuccessCase = function (_n0) {
 					[
 						elm$html$Html$Attributes$class('mobile-list-container')
 					]),
-				A2(elm$core$List$map, author$project$Main$viewStory, successStoryList))
+				A2(elm$core$List$map, author$project$Main$viewMobileStory, successStoryList))
 			]));
 };
 var author$project$Main$viewMobileTeamMember = function (_n0) {
@@ -11914,69 +12017,77 @@ var author$project$Main$viewMobileTeamMember = function (_n0) {
 					]))
 			]));
 };
-var author$project$Main$viewTeamMember = function (_n0) {
-	var name = _n0.name;
-	var imgSrc = _n0.imgSrc;
-	var position = _n0.position;
-	var introduction = _n0.introduction;
-	var imgSrcPath = A2(elm$core$String$append, author$project$Main$assetPath, imgSrc);
-	return A2(
-		elm$html$Html$article,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('three-grid-item black-border-bottom')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('self-introduction')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text(introduction)
-					])),
-				A2(
-				elm$html$Html$img,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$src(imgSrcPath),
-						elm$html$Html$Attributes$alt(imgSrc)
-					]),
-				_List_Nil),
-				A2(
-				elm$html$Html$p,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('list-item-title')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text(position)
-					])),
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('list-item-description align-left')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text(name),
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('big-arrow')
-							]),
-						_List_Nil)
-					]))
-			]));
+var author$project$Main$SelectTeamMember = function (a) {
+	return {$: 'SelectTeamMember', a: a};
 };
+var author$project$Main$viewTeamMember = F3(
+	function (selectedTeamMemberIndex, index, _n0) {
+		var name = _n0.name;
+		var imgSrc = _n0.imgSrc;
+		var position = _n0.position;
+		var introduction = _n0.introduction;
+		var imgSrcPath = A2(elm$core$String$append, author$project$Main$assetPath, imgSrc);
+		return A2(
+			elm$html$Html$article,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class(
+					'three-grid-item black-border-bottom' + (_Utils_eq(selectedTeamMemberIndex, index) ? ' selected' : '')),
+					elm$html$Html$Events$onClick(
+					author$project$Main$SelectTeamMember(index))
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('self-introduction')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(introduction)
+						])),
+					A2(
+					elm$html$Html$img,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$src(imgSrcPath),
+							elm$html$Html$Attributes$alt(imgSrc)
+						]),
+					_List_Nil),
+					A2(
+					elm$html$Html$p,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('list-item-title')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(position)
+						])),
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('list-item-description align-left')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text(name),
+							A2(
+							elm$html$Html$div,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('big-arrow')
+								]),
+							_List_Nil)
+						]))
+				]));
+	});
 var author$project$Main$viewSectionTeam = function (_n0) {
 	var teamMemberList = _n0.teamMemberList;
+	var selectedTeamMemberIndex = _n0.selectedTeamMemberIndex;
 	return A2(
 		elm$html$Html$section,
 		_List_fromArray(
@@ -12001,7 +12112,10 @@ var author$project$Main$viewSectionTeam = function (_n0) {
 					[
 						elm$html$Html$Attributes$class('three-grid-view-container')
 					]),
-				A2(elm$core$List$map, author$project$Main$viewTeamMember, teamMemberList)),
+				A2(
+					elm$core$List$indexedMap,
+					author$project$Main$viewTeamMember(selectedTeamMemberIndex),
+					teamMemberList)),
 				A2(
 				elm$html$Html$div,
 				_List_fromArray(
@@ -12132,4 +12246,4 @@ var elm$browser$Browser$document = _Browser_document;
 var author$project$Main$main = elm$browser$Browser$document(
 	{init: author$project$Main$init, subscriptions: author$project$Main$subscriptions, update: author$project$Main$update, view: author$project$Main$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{"Main.Article":{"args":[],"type":"{ imgSrc : String.String, date : Main.Date, title : String.String, description : String.String, link : String.String }"},"Main.Date":{"args":[],"type":"{ year : String.String, month : String.String, day : String.String }"},"Main.FundRaiseStats":{"args":[],"type":"{ successCaseNum : Basics.Int, successRate : Basics.Int, totalFund : String.String, funders : Basics.Int }"},"Main.ServiceContent":{"args":[],"type":"{ imgSrc : String.String, imgAlt : String.String, title : String.String, description : String.String }"},"Main.ServiceDetail":{"args":[],"type":"{ title : String.String, description : String.String }"},"Main.Story":{"args":[],"type":"{ link : String.String, imgSrc : String.String, title : String.String, description : String.String, fundRaiseAmount : String.String, funders : Basics.Int }"},"Main.TeamMember":{"args":[],"type":"{ name : String.String, imgSrc : String.String, position : String.String, introduction : String.String }"}},"unions":{"Main.Msg":{"args":[],"tags":{"TOGGLE":[],"GotServiceContentList":["Result.Result Http.Error (List.List Main.ServiceContent)"],"GotServiceDetailList":["Result.Result Http.Error (List.List Main.ServiceDetail)"],"Carousel":["Main.CarouselUseCase","Main.CarouselBehaviour"],"GotMediaList":["Result.Result Http.Error (List.List String.String)"],"GotTeamMemberList":["Result.Result Http.Error (List.List Main.TeamMember)"],"GotArticleList":["Result.Result Http.Error (List.List Main.Article)"],"GotStoryList":["Result.Result Http.Error (List.List Main.Story)"],"GotFundRaiseStats":["Result.Result Http.Error Main.FundRaiseStats"],"LinkToUrl":["String.String"]}},"Main.CarouselBehaviour":{"args":[],"tags":{"Next":[],"Prev":[]}},"Main.CarouselUseCase":{"args":[],"tags":{"Service":[],"SuccessCase":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{"Main.Article":{"args":[],"type":"{ imgSrc : String.String, date : Main.Date, title : String.String, description : String.String, link : String.String }"},"Main.Date":{"args":[],"type":"{ year : String.String, month : String.String, day : String.String }"},"Main.FundRaiseStats":{"args":[],"type":"{ successCaseNum : Basics.Int, successRate : Basics.Int, totalFund : String.String, funders : Basics.Int }"},"Main.ServiceContent":{"args":[],"type":"{ imgSrc : String.String, imgAlt : String.String, title : String.String, description : String.String }"},"Main.ServiceDetail":{"args":[],"type":"{ title : String.String, description : String.String }"},"Main.Story":{"args":[],"type":"{ link : String.String, imgSrc : String.String, title : String.String, description : String.String, fundRaiseAmount : String.String, funders : Basics.Int }"},"Main.TeamMember":{"args":[],"type":"{ name : String.String, imgSrc : String.String, position : String.String, introduction : String.String }"}},"unions":{"Main.Msg":{"args":[],"tags":{"TOGGLE":[],"GotServiceContentList":["Result.Result Http.Error (List.List Main.ServiceContent)"],"GotServiceDetailList":["Result.Result Http.Error (List.List Main.ServiceDetail)"],"Carousel":["Main.CarouselUseCase","Main.CarouselBehaviour"],"GotMediaList":["Result.Result Http.Error (List.List String.String)"],"GotTeamMemberList":["Result.Result Http.Error (List.List Main.TeamMember)"],"GotArticleList":["Result.Result Http.Error (List.List Main.Article)"],"GotStoryList":["Result.Result Http.Error (List.List Main.Story)"],"GotFundRaiseStats":["Result.Result Http.Error Main.FundRaiseStats"],"LinkToUrl":["String.String"],"SelectTeamMember":["Basics.Int"]}},"Main.CarouselBehaviour":{"args":[],"tags":{"Next":[],"Prev":[]}},"Main.CarouselUseCase":{"args":[],"tags":{"Service":[],"SuccessCase":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}}}}})}});}(this));
