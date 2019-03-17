@@ -8,6 +8,7 @@ import Html.Events exposing (onClick)
 import Http
 import Json.Decode exposing (Decoder, field, int, list, map2, map3, map4, map5, map6, string)
 import String exposing (append)
+import Time
 
 
 
@@ -21,12 +22,14 @@ type alias Model =
     , serviceIndex : Int
     , successCaseIndex : Int
     , mediaList : List String
+    , partnerList : List String
     , teamMemberList : List TeamMember
     , selectedTeamMemberIndex : Int
     , articleList : List Article
     , fundRaiseStats : FundRaiseStats
     , successStoryList : List Story
     , errorMsg : Maybe Http.Error
+    , topIndex : Int
     }
 
 
@@ -104,12 +107,15 @@ type Msg
     | GotServiceDetailList (Result Http.Error (List ServiceDetail))
     | Carousel CarouselUseCase CarouselBehaviour
     | GotMediaList (Result Http.Error (List String))
+    | GotPartnerList (Result Http.Error (List String))
     | GotTeamMemberList (Result Http.Error (List TeamMember))
     | GotArticleList (Result Http.Error (List Article))
     | GotStoryList (Result Http.Error (List Story))
     | GotFundRaiseStats (Result Http.Error FundRaiseStats)
     | LinkToUrl String
     | SelectTeamMember Int
+    | DotClick Int
+    | SwitchTopImage Time.Posix
 
 
 init : () -> ( Model, Cmd Msg )
@@ -120,12 +126,14 @@ init _ =
       , serviceIndex = 0
       , successCaseIndex = 0
       , mediaList = []
+      , partnerList = []
       , teamMemberList = []
       , selectedTeamMemberIndex = -1
       , articleList = []
       , fundRaiseStats = { successCaseNum = 0, successRate = 0, totalFund = "", funders = 0 }
       , successStoryList = []
       , errorMsg = Nothing
+      , topIndex = 1
       }
     , Cmd.batch
         [ Http.get
@@ -139,6 +147,10 @@ init _ =
         , Http.get
             { url = "media.json"
             , expect = Http.expectJson GotMediaList decodeMediaList
+            }
+        , Http.get
+            { url = "partner.json"
+            , expect = Http.expectJson GotPartnerList decodeMediaList
             }
         , Http.get
             { url = "team.json"
@@ -319,7 +331,13 @@ update msg model =
 
                 Err _ ->
                     ( model, Cmd.none )
+        GotPartnerList result ->
+            case result of
+                Ok partnerList ->
+                    ( { model | partnerList = partnerList }, Cmd.none )
 
+                Err _ ->
+                    ( model, Cmd.none )
         GotTeamMemberList result ->
             case result of
                 Ok teamMemberList ->
@@ -358,6 +376,17 @@ update msg model =
         SelectTeamMember index ->
             ( { model | selectedTeamMemberIndex = index }, Cmd.none )
 
+        DotClick index ->
+            ( { model | topIndex = index }, Cmd.none )
+
+        SwitchTopImage _ ->
+            case model.topIndex of
+                3 ->
+                    ( { model | topIndex = 1 }, Cmd.none )
+
+                _ ->
+                    ( { model | topIndex = model.topIndex + 1 }, Cmd.none )
+
 
 nextIndex : Int -> Int -> Int
 nextIndex currentIndex maxIndex =
@@ -383,7 +412,7 @@ prevIndex currentIndex maxIndex =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Time.every 3000 SwitchTopImage
 
 
 
@@ -393,7 +422,7 @@ subscriptions model =
 viewHeader : Model -> Html Msg
 viewHeader model =
     header []
-        [ a [ id "logo-link", href "#top" ]
+        [ a [ id "logo-link", href "#top"  ]
             [ figure []
                 [ img
                     [ src "img/logo.svg"
@@ -406,14 +435,15 @@ viewHeader model =
                 ]
             ]
         , nav [ class (String.join " " model.navBarClassNames) ]
-            [ a [ href "#top" ] [ text "首頁" ]
+            [ a [ id "top-link", href "#top", class "selected" ] [ text "首頁"]
             , a [ href "#service" ] [ text "服務內容" ]
             , a [ href "#success-case" ] [ text "過去實績" ]
             , a [ href "#team" ] [ text "團隊成員" ]
             , a [ href "#japan-insider" ] [ text "日本內幕" ]
             , a [ href "https://japaninsider.typeform.com/to/S7rcLo" ] [ text "聯絡我們" ]
             ]
-        , a [ class "hamburger", href "javascript:void(0);", onClick TOGGLE ] [ img [] [] ]
+        , a [ class "hamburger", onClick TOGGLE ]
+            [ img [ src "./img/hamburger.svg", width 25, height 25 ] [] ]
         ]
 
 
@@ -428,17 +458,56 @@ viewMailBtn =
         ]
 
 
-viewSectionTop : Html Msg
-viewSectionTop =
-    section [ id "top" ]
+viewSectionTop : Model -> Html Msg
+viewSectionTop { topIndex } =
+    section [ id "top", style "background-image" ("url('./img/top-" ++ String.fromInt topIndex ++ ".jpg')") ]
         [ aside []
             [ h2 [] [ text "成為你日本現地的即時成員" ]
             , h2 [] [ text "支援日本群眾募資的專業團隊" ]
             ]
         , div [ class "dot-container" ]
-            [ div [ id "dot-1", class "dot selected" ] []
-            , div [ id "dot-2", class "dot" ] []
-            , div [ id "dot-3", class "dot" ] []
+            [ div
+                [ id "dot-1"
+                , class
+                    ("dot"
+                        ++ (if topIndex == 1 then
+                                " selected"
+
+                            else
+                                ""
+                           )
+                    )
+                , onClick (DotClick 1)
+                ]
+                []
+            , div
+                [ id "dot-2"
+                , class
+                    ("dot"
+                        ++ (if topIndex == 2 then
+                                " selected"
+
+                            else
+                                ""
+                           )
+                    )
+                , onClick (DotClick 2)
+                ]
+                []
+            , div
+                [ id "dot-3"
+                , class
+                    ("dot"
+                        ++ (if topIndex == 3 then
+                                " selected"
+
+                            else
+                                ""
+                           )
+                    )
+                , onClick (DotClick 3)
+                ]
+                []
             ]
         ]
 
@@ -559,8 +628,7 @@ viewSectionSuccessCase { fundRaiseStats, successStoryList, successCaseIndex } =
                 )
             , div [ class "next" ] [ div [ class "arrow-right", onClick (Carousel SuccessCase Next) ] [] ]
             ]
-        , div [ class "mobile-flex-container" ]
-            [ viewSuccessResult fundRaiseStats ]
+        , viewMobileSuccessResult fundRaiseStats
         , div [ class "mobile-list-container" ] (List.map viewMobileStory successStoryList)
         ]
 
@@ -617,6 +685,36 @@ viewSuccessResult fundRaiseStats =
                 ]
             ]
         , article [ class "four-grid-item" ]
+            [ h2 [ class "success-title" ]
+                [ text "募資支持者" ]
+            , p [ class "success-number success-circle-container" ]
+                [ text (String.fromInt fundRaiseStats.funders) ]
+            ]
+        ]
+
+
+viewMobileSuccessResult : FundRaiseStats -> Html Msg
+viewMobileSuccessResult fundRaiseStats =
+    div [ class "mobile-flex-container" ]
+        [ article [ class "list-item no-bottom-border small-list-item" ]
+            [ h2 [ class "success-title" ]
+                [ text "執行募資案" ]
+            , p [ class "success-number success-circle-container" ] [ text (String.fromInt fundRaiseStats.successCaseNum) ]
+            ]
+        , article [ class "list-item no-bottom-border small-list-item" ]
+            [ h2 [ class "success-title" ]
+                [ text "募資成功率" ]
+            , p [ class "success-number success-circle-container" ] [ text (String.fromInt fundRaiseStats.successRate ++ "%") ]
+            ]
+        , article [ class "list-item no-bottom-border small-list-item" ]
+            [ h2 [ class "success-title" ]
+                [ text "募資總金額" ]
+            , p [ class "success-number success-circle-container red-background" ]
+                [ text ("¥" ++ fundRaiseStats.totalFund)
+                , span [ class "small-font-size" ] [ text "Million" ]
+                ]
+            ]
+        , article [ class "list-item no-bottom-border small-list-item" ]
             [ h2 [ class "success-title" ]
                 [ text "募資支持者" ]
             , p [ class "success-number success-circle-container" ]
@@ -795,9 +893,25 @@ viewSectionMarketDev =
         ]
 
 
+viewSectionPartner : Model -> Html Msg
+viewSectionPartner { partnerList } =
+    section [ class "intro-description white-background" ]
+        [ h3 [ class "section-title" ] [ text "合作夥伴" ]
+        , h2 [ class "partner-title" ] [ text "Japan Insider 與日本各大群眾募資平台皆有合作關係, 根據團隊的產品屬性及目標, 協助你連結最適合的平台, 執行募資策略。" ]
+        , div [ class "media-container" ]
+            (List.map viewPartner partnerList)
+        ]
 
--- TODO : partner
+viewPartner : String -> Html Msg
+viewPartner imgName =
+    let
+        imgSrc =
+            append assetPath imgName
 
+        imgAlt =
+            imgName
+    in
+    figure [] [ img [ class "media-image big-image", src imgSrc, alt imgAlt ] [] ]
 
 viewSectionMedia : Model -> Html Msg
 viewSectionMedia { mediaList } =
@@ -831,7 +945,7 @@ view model =
     , body =
         [ viewHeader model
         , viewMailBtn
-        , viewSectionTop
+        , viewSectionTop model
         , viewSectionIntroduction
         , viewSectionService model
         , viewSectionPromotion
@@ -840,6 +954,7 @@ view model =
         , viewSectionTeam model
         , viewSectionJapanInsider model
         , viewSectionMarketDev
+        , viewSectionPartner model
         , viewSectionMedia model
         , viewFooter
         ]
