@@ -2,13 +2,116 @@ module Main exposing (init, view)
 
 import Browser exposing (Document)
 import Browser.Navigation
+import Graphql.Http
+import Graphql.Operation exposing (RootQuery)
+import Graphql.OptionalArgument exposing (OptionalArgument(..))
+import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, with)
 import Html exposing (Html, a, article, aside, div, em, figure, footer, h2, h3, h4, header, img, li, nav, p, section, span, text, ul)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode exposing (Decoder, field, int, list, map2, map3, map4, map5, map6, string)
+import RemoteData exposing (RemoteData)
 import String exposing (append)
 import Time
+import Wordpress.Interface
+import Wordpress.Object
+import Wordpress.Object.MediaItem
+import Wordpress.Object.Post
+import Wordpress.Object.RootQueryToPostConnection
+import Wordpress.Object.User
+import Wordpress.Query as Query
+import Wordpress.Scalar exposing (Id(..))
+
+
+
+-- GRAPHQL
+
+
+type alias Author =
+    { name : String
+    }
+
+
+type alias FeaturedImage =
+    { sourceUrl : String
+    , altText : String
+    }
+
+
+type alias Post =
+    { title : String
+    , date : String
+    , excerpt : String
+    , sourceUrl : String
+    , altText : String
+    , link : String
+    }
+
+
+type alias PostList =
+    List Post
+
+
+query : SelectionSet PostList RootQuery
+query =
+    Query.posts (\optionals -> { optionals | first = Present 3 }) postListSelection |> SelectionSet.nonNullOrFail
+
+
+postListSelection : SelectionSet PostList Wordpress.Object.RootQueryToPostConnection
+postListSelection =
+    Wordpress.Object.RootQueryToPostConnection.nodes postSelection |> SelectionSet.nonNullOrFail |> SelectionSet.nonNullElementsOrFail
+
+
+postSelection : SelectionSet Post Wordpress.Object.Post
+postSelection =
+    SelectionSet.succeed Post
+        |> with (Wordpress.Object.Post.title identity |> SelectionSet.map (Maybe.withDefault ""))
+        |> with (Wordpress.Object.Post.date |> SelectionSet.map (Maybe.withDefault ""))
+        |> with (Wordpress.Object.Post.excerpt identity |> SelectionSet.map (Maybe.withDefault ""))
+        |> with (Wordpress.Object.Post.featuredImage featuredImageSelection |> SelectionSet.map mapSourceUrl)
+        |> with (Wordpress.Object.Post.featuredImage featuredImageSelection |> SelectionSet.map mapAltText)
+        |> with (Wordpress.Object.Post.link |> SelectionSet.map (Maybe.withDefault ""))
+
+
+mapSourceUrl : Maybe FeaturedImage -> String
+mapSourceUrl featuredImage =
+    case featuredImage of
+        Just value ->
+            value.sourceUrl
+
+        Nothing ->
+            ""
+
+
+mapAltText : Maybe FeaturedImage -> String
+mapAltText featuredImage =
+    case featuredImage of
+        Just value ->
+            value.altText
+
+        Nothing ->
+            ""
+
+
+authorSelection : SelectionSet Author Wordpress.Object.User
+authorSelection =
+    SelectionSet.succeed Author
+        |> with (Wordpress.Object.User.name |> SelectionSet.map (Maybe.withDefault ""))
+
+
+featuredImageSelection : SelectionSet FeaturedImage Wordpress.Object.MediaItem
+featuredImageSelection =
+    SelectionSet.succeed FeaturedImage
+        |> with (Wordpress.Object.MediaItem.sourceUrl identity |> SelectionSet.map (Maybe.withDefault ""))
+        |> with (Wordpress.Object.MediaItem.altText |> SelectionSet.map (Maybe.withDefault ""))
+
+
+makeRequest : Cmd Msg
+makeRequest =
+    query
+        |> Graphql.Http.queryRequest "http://localhost:8080/graphql"
+        |> Graphql.Http.send (RemoteData.fromResult >> GotResponse)
 
 
 
@@ -25,7 +128,7 @@ type alias Model =
     , partnerList : List String
     , teamMemberList : List TeamMember
     , selectedTeamMemberIndex : Int
-    , articleList : List Article
+    , postList : PostList
     , fundRaiseStats : FundRaiseStats
     , successStoryList : List Story
     , errorMsg : Maybe Http.Error
@@ -62,15 +165,6 @@ type alias Date =
     }
 
 
-type alias Article =
-    { imgSrc : String
-    , date : Date
-    , title : String
-    , description : String
-    , link : String
-    }
-
-
 type alias FundRaiseStats =
     { successCaseNum : Int
     , successRate : Int
@@ -101,6 +195,10 @@ type CarouselBehaviour
     | Prev
 
 
+type alias WordpressPostListResponse =
+    RemoteData (Graphql.Http.Error PostList) PostList
+
+
 type Msg
     = TOGGLE
     | GotServiceContentList (Result Http.Error (List ServiceContent))
@@ -109,13 +207,13 @@ type Msg
     | GotMediaList (Result Http.Error (List String))
     | GotPartnerList (Result Http.Error (List String))
     | GotTeamMemberList (Result Http.Error (List TeamMember))
-    | GotArticleList (Result Http.Error (List Article))
     | GotStoryList (Result Http.Error (List Story))
     | GotFundRaiseStats (Result Http.Error FundRaiseStats)
     | LinkToUrl String
     | SelectTeamMember Int
     | DotClick Int
     | SwitchTopImage Time.Posix
+    | GotResponse WordpressPostListResponse
 
 
 init : () -> ( Model, Cmd Msg )
@@ -129,7 +227,7 @@ init _ =
       , partnerList = []
       , teamMemberList = []
       , selectedTeamMemberIndex = -1
-      , articleList = []
+      , postList = []
       , fundRaiseStats = { successCaseNum = 0, successRate = 0, totalFund = "", funders = 0 }
       , successStoryList = []
       , errorMsg = Nothing
@@ -157,10 +255,6 @@ init _ =
             , expect = Http.expectJson GotTeamMemberList decodeTeamMemberList
             }
         , Http.get
-            { url = "../data/article.json"
-            , expect = Http.expectJson GotArticleList decodeArticleList
-            }
-        , Http.get
             { url = "../data/story.json"
             , expect = Http.expectJson GotStoryList decodeStoryList
             }
@@ -168,6 +262,7 @@ init _ =
             { url = "../data/fund_raise_stats.json"
             , expect = Http.expectJson GotFundRaiseStats decodeFundRaiseStats
             }
+        , makeRequest
         ]
     )
 
@@ -227,21 +322,6 @@ dateDecoder =
         (field "year" string)
         (field "month" string)
         (field "day" string)
-
-
-articleDecoder : Decoder Article
-articleDecoder =
-    map5 Article
-        (field "imgSrc" string)
-        (field "date" dateDecoder)
-        (field "title" string)
-        (field "description" string)
-        (field "link" string)
-
-
-decodeArticleList : Decoder (List Article)
-decodeArticleList =
-    field "data" (list articleDecoder)
 
 
 storyDecoder : Decoder Story
@@ -331,6 +411,7 @@ update msg model =
 
                 Err _ ->
                     ( model, Cmd.none )
+
         GotPartnerList result ->
             case result of
                 Ok partnerList ->
@@ -338,18 +419,11 @@ update msg model =
 
                 Err _ ->
                     ( model, Cmd.none )
+
         GotTeamMemberList result ->
             case result of
                 Ok teamMemberList ->
                     ( { model | teamMemberList = teamMemberList }, Cmd.none )
-
-                Err _ ->
-                    ( model, Cmd.none )
-
-        GotArticleList result ->
-            case result of
-                Ok articleList ->
-                    ( { model | articleList = articleList }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -387,6 +461,17 @@ update msg model =
                 _ ->
                     ( { model | topIndex = model.topIndex + 1 }, Cmd.none )
 
+        GotResponse response ->
+            case response of
+                RemoteData.Failure errorData ->
+                    ( model, Cmd.none )
+
+                RemoteData.Success successData ->
+                    ( { model | postList = successData }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 nextIndex : Int -> Int -> Int
 nextIndex currentIndex maxIndex =
@@ -422,7 +507,7 @@ subscriptions model =
 viewHeader : Model -> Html Msg
 viewHeader model =
     header []
-        [ a [ id "logo-link", href "#top"  ]
+        [ a [ id "logo-link", href "#top" ]
             [ figure []
                 [ img
                     [ src "img/logo.svg"
@@ -435,7 +520,7 @@ viewHeader model =
                 ]
             ]
         , nav [ class (String.join " " model.navBarClassNames) ]
-            [ a [ id "top-link", href "#top", class "selected" ] [ text "首頁"]
+            [ a [ id "top-link", href "#top", class "selected" ] [ text "首頁" ]
             , a [ href "#service" ] [ text "服務內容" ]
             , a [ href "#success-case" ] [ text "過去實績" ]
             , a [ href "#team" ] [ text "團隊成員" ]
@@ -786,52 +871,42 @@ viewMobileTeamMember { name, imgSrc, position, introduction } =
 
 
 viewSectionJapanInsider : Model -> Html Msg
-viewSectionJapanInsider { articleList } =
+viewSectionJapanInsider { postList } =
     section [ id "japan-insider" ]
         [ h3 [ class "section-title" ] [ text "日本內幕部落格" ]
-        , div [ class "three-grid-view-container" ] (List.map viewArticle articleList)
-        , div [ class "mobile-list-container" ] (List.map viewMobileArticle articleList)
+        , div [ class "three-grid-view-container" ] (List.map viewPost postList)
+        , div [ class "mobile-list-container" ] (List.map viewMobilePost postList)
         ]
 
 
-viewArticle : Article -> Html Msg
-viewArticle { imgSrc, date, title, description, link } =
-    let
-        imgSrcPath =
-            append assetPath imgSrc
-    in
+viewPost : Post -> Html Msg
+viewPost { title, date, excerpt, sourceUrl, link } =
     article [ class "three-grid-item list-item-shadow" ]
-        [ img [ class "big-image red-bottome-border", src imgSrcPath, alt title ] []
+        [ img [ class "big-image red-bottome-border", src sourceUrl, alt title ] []
         , div [ class "blog-text-content" ]
             [ div [ class "blog-item-header" ]
                 [ div [ class "blog-item-date" ]
-                    [ p [] [ text (date.year ++ ".") ]
-                    , p [] [ text (date.month ++ "." ++ date.day) ]
+                    [ p [] [ text date ]
                     ]
                 , div [ class "blog-item-title" ] [ text title ]
                 ]
-            , p [ class "blog-item-description" ] [ text description ]
+            , p [ class "blog-item-description" ] [ text excerpt ]
             , a [ class "continue-reading", href link ] [ text "(...繼續閱讀)" ]
             ]
         ]
 
 
-viewMobileArticle : Article -> Html Msg
-viewMobileArticle { imgSrc, date, title, description, link } =
-    let
-        imgSrcPath =
-            append assetPath imgSrc
-    in
+viewMobilePost : Post -> Html Msg
+viewMobilePost { title, date, excerpt, sourceUrl, link } =
     article [ class "list-item list-item-shadow no-bottom-border" ]
-        [ img [ class "red-bottome-border", src imgSrcPath, alt title ] []
+        [ img [ class "red-bottome-border", src sourceUrl, alt title ] []
         , div [ class "blog-text-content" ]
             [ div [ class "blog-item-header" ] []
             , div [ class "blog-item-date" ]
-                [ p [] [ text (date.year ++ ".") ]
-                , p [] [ text (date.month ++ "." ++ date.day) ]
+                [ p [] [ text date ]
                 ]
             , div [ class "blog-item-title" ] [ text title ]
-            , p [ class "blog-item-description" ] [ text description ]
+            , p [ class "blog-item-description" ] [ text excerpt ]
             , a [ class "continue-reading", href link ] [ text "(...繼續閱讀)" ]
             ]
         ]
@@ -902,6 +977,7 @@ viewSectionPartner { partnerList } =
             (List.map viewPartner partnerList)
         ]
 
+
 viewPartner : String -> Html Msg
 viewPartner imgName =
     let
@@ -912,6 +988,7 @@ viewPartner imgName =
             imgName
     in
     figure [] [ img [ class "media-image big-image", src imgSrc, alt imgAlt ] [] ]
+
 
 viewSectionMedia : Model -> Html Msg
 viewSectionMedia { mediaList } =
