@@ -2,6 +2,7 @@ module Main exposing (init, view)
 
 import Browser exposing (Document)
 import Browser.Navigation
+import DateFormat
 import Graphql.Http
 import Graphql.Operation exposing (RootQuery)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
@@ -10,10 +11,12 @@ import Html exposing (Html, a, article, aside, div, em, figure, footer, h2, h3, 
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
+import Iso8601
 import Json.Decode exposing (Decoder, field, int, list, map2, map3, map4, map5, map6, string)
+import Parser exposing (deadEndsToString)
 import RemoteData exposing (RemoteData)
 import String exposing (append)
-import Time
+import Time exposing (Posix, Zone, utc)
 import Wordpress.Interface
 import Wordpress.Object
 import Wordpress.Object.MediaItem
@@ -22,6 +25,30 @@ import Wordpress.Object.RootQueryToPostConnection
 import Wordpress.Object.User
 import Wordpress.Query as Query
 import Wordpress.Scalar exposing (Id(..))
+
+
+
+-- Let's create a custom formatter we can use later:
+
+
+ourFormatter : Zone -> Posix -> String
+ourFormatter =
+    DateFormat.format
+        [ DateFormat.monthNameFull
+        , DateFormat.text " "
+        , DateFormat.dayOfMonthSuffix
+        , DateFormat.text ", "
+        , DateFormat.yearNumber
+        ]
+
+
+
+-- With our formatter, we can format any date as a string!
+
+
+ourTimezone : Zone
+ourTimezone =
+    utc
 
 
 
@@ -67,7 +94,7 @@ postSelection : SelectionSet Post Wordpress.Object.Post
 postSelection =
     SelectionSet.succeed Post
         |> with (Wordpress.Object.Post.title identity |> SelectionSet.map (Maybe.withDefault ""))
-        |> with (Wordpress.Object.Post.date |> SelectionSet.map (Maybe.withDefault ""))
+        |> with (Wordpress.Object.Post.dateGmt |> SelectionSet.map (Maybe.withDefault ""))
         |> with (Wordpress.Object.Post.excerpt identity |> SelectionSet.map (Maybe.withDefault ""))
         |> with (Wordpress.Object.Post.featuredImage featuredImageSelection |> SelectionSet.map mapSourceUrl)
         |> with (Wordpress.Object.Post.featuredImage featuredImageSelection |> SelectionSet.map mapAltText)
@@ -886,7 +913,16 @@ viewPost { title, date, excerpt, sourceUrl, link } =
         , div [ class "blog-text-content" ]
             [ div [ class "blog-item-header" ]
                 [ div [ class "blog-item-date" ]
-                    [ p [] [ text date ]
+                    [ p []
+                        [ text
+                            (case Iso8601.toTime date of
+                                Ok value ->
+                                    ourFormatter ourTimezone value
+
+                                Err error ->
+                                    deadEndsToString error
+                            )
+                        ]
                     ]
                 , div [ class "blog-item-title" ] [ text title ]
                 ]
