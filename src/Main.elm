@@ -331,6 +331,7 @@ update msg model =
 
                 Err _ ->
                     ( model, Cmd.none )
+
         GotPartnerList result ->
             case result of
                 Ok partnerList ->
@@ -338,6 +339,7 @@ update msg model =
 
                 Err _ ->
                     ( model, Cmd.none )
+
         GotTeamMemberList result ->
             case result of
                 Ok teamMemberList ->
@@ -422,7 +424,7 @@ subscriptions model =
 viewHeader : Model -> Html Msg
 viewHeader model =
     header []
-        [ a [ id "logo-link", href "#top"  ]
+        [ a [ id "logo-link", href "#top" ]
             [ figure []
                 [ img
                     [ src "img/logo.svg"
@@ -435,7 +437,7 @@ viewHeader model =
                 ]
             ]
         , nav [ class (String.join " " model.navBarClassNames) ]
-            [ a [ id "top-link", href "#top", class "selected" ] [ text "首頁"]
+            [ a [ id "top-link", href "#top", class "selected" ] [ text "首頁" ]
             , a [ href "#service" ] [ text "服務內容" ]
             , a [ href "#success-case" ] [ text "過去實績" ]
             , a [ href "#team" ] [ text "團隊成員" ]
@@ -902,6 +904,7 @@ viewSectionPartner { partnerList } =
             (List.map viewPartner partnerList)
         ]
 
+
 viewPartner : String -> Html Msg
 viewPartner imgName =
     let
@@ -912,6 +915,7 @@ viewPartner imgName =
             imgName
     in
     figure [] [ img [ class "media-image big-image", src imgSrc, alt imgAlt ] [] ]
+
 
 viewSectionMedia : Model -> Html Msg
 viewSectionMedia { mediaList } =
@@ -936,7 +940,20 @@ viewMedia imgName =
 
 viewFooter : Html Msg
 viewFooter =
-    footer [] [ figure [] [ img [ class "media-image", src "img/logo.svg", alt "logo" ] [] ] ]
+    footer
+        []
+        [ figure [] [ img [ class "media-image", src "img/logo.svg", alt "logo" ] [] ]
+        , div [ class "about-us-footer" ]
+            [ p [ class "about-us-title" ]
+                [ text "關於我們" ]
+            , p
+                [ class "about-us-info" ]
+                [ text "contact@japaninsider.co" ]
+            , p
+                [ class "about-us-info" ]
+                [ text "106-0046 東京都港区元麻布3-1-6" ]
+            ]
+        ]
 
 
 view : Model -> Document Msg
